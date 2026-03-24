@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsHub — Giới Thiệu Sản Phẩm</title>
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --accent: #e94560;
+            --accent2: #0f3460;
+            --light: #f8f9fa;
+            --text: #333;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #fff;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(233,69,96,0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 50%, rgba(15,52,96,0.2) 0%, transparent 50%);
+            animation: heroFloat 15s ease-in-out infinite;
+        }
+        @keyframes heroFloat {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-3%, 3%); }
+        }
+        .hero-content { position: relative; z-index: 2; max-width: 900px; }
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 20px;
+            background: rgba(233,69,96,0.2);
+            border: 1px solid rgba(233,69,96,0.4);
+            border-radius: 25px;
+            font-size: 0.85rem;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        .hero h1 span { color: var(--accent); }
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.85;
+            max-width: 650px;
+            margin: 0 auto 35px;
+        }
+        .hero-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .btn {
+            padding: 14px 35px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(233,69,96,0.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(233,69,96,0.4); }
+        .btn-outline {
+            background: transparent;
+            color: #fff;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.5); }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-top: 50px;
+            flex-wrap: wrap;
+        }
+        .hero-stat { text-align: center; }
+        .hero-stat .num {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        .hero-stat .label { font-size: 0.85rem; opacity: 0.7; }
+
+        /* SCROLL INDICATOR */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            font-size: 1.5rem;
+            opacity: 0.5;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-15px); }
+            60% { transform: translateX(-50%) translateY(-8px); }
+        }
+
+        /* SECTIONS */
+        section { padding: 80px 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .section-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        .section-header .tag {
+            display: inline-block;
+            padding: 4px 16px;
+            background: rgba(233,69,96,0.1);
+            color: var(--accent);
+            border-radius: 15px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+        .section-header h2 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+        .section-header p {
+            font-size: 1.05rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* PROBLEM */
+        .problem-section { background: var(--light); }
+        .problems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .problem-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            border-left: 4px solid var(--accent);
+        }
+        .problem-card:hover { transform: translateY(-5px); }
+        .problem-card .icon { font-size: 2.5rem; margin-bottom: 15px; }
+        .problem-card h3 { font-size: 1.1rem; margin-bottom: 10px; color: var(--primary); }
+        .problem-card p { font-size: 0.9rem; color: #666; }
+
+        /* FEATURES */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        .feature-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .feature-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+        .feature-card:hover::before { opacity: 1; }
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 18px;
+        }
+        .fi-1 { background: #e3f2fd; }
+        .fi-2 { background: #fce4ec; }
+        .fi-3 { background: #e8f5e9; }
+        .fi-4 { background: #fff3e0; }
+        .fi-5 { background: #f3e5f5; }
+        .fi-6 { background: #e0f7fa; }
+        .feature-card h3 { font-size: 1.15rem; margin-bottom: 10px; color: var(--primary); }
+        .feature-card p { font-size: 0.9rem; color: #666; }
+
+        /* HOW IT WORKS */
+        .how-section { background: var(--light); }
+        .steps {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .step {
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+            max-width: 250px;
+            position: relative;
+        }
+        .step-num {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+        }
+        .step h3 { font-size: 1.05rem; margin-bottom: 8px; color: var(--primary); }
+        .step p { font-size: 0.88rem; color: #666; }
+        .step-arrow {
+            position: absolute;
+            right: -25px;
+            top: 30px;
+            font-size: 1.5rem;
+            color: #ccc;
+        }
+        @media (max-width: 768px) {
+            .step-arrow { display: none; }
+        }
+
+        /* SOURCES */
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .source-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: 0.3s;
+        }
+        .source-card:hover { transform: scale(1.05); }
+        .source-card .flag { font-size: 2rem; margin-bottom: 8px; }
+        .source-card .country { font-weight: 700; font-size: 0.95rem; color: var(--primary); }
+        .source-card .sources { font-size: 0.82rem; color: #888; margin-top: 5px; }
+
+        /* LANGUAGE COMPARISON */
+        .lang-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        @media (max-width: 600px) { .lang-compare { grid-template-columns: 1fr; } }
+        .lang-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 35px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            text-align: center;
+        }
+        .lang-card .flag { font-size: 3rem; margin-bottom: 12px; }
+        .lang-card h3 { font-size: 1.3rem; color: var(--primary); margin-bottom: 8px; }
+        .lang-card p { color: #666; font-size: 0.9rem; margin-bottom: 15px; }
+        .lang-card ul { list-style: none; text-align: left; }
+        .lang-card ul li { padding: 6px 0; font-size: 0.9rem; border-bottom: 1px solid #f0f0f0; }
+        .lang-card ul li::before { content: '✅ '; }
+
+        /* CATEGORIES SHOWCASE */
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+        }
+        .cat-card {
+            padding: 25px 15px;
+            border-radius: 14px;
+            text-align: center;
+            color: #fff;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .cat-card:hover { transform: translateY(-5px); }
+        .cat-card .cat-icon { font-size: 2.5rem; margin-bottom: 10px; }
+        .cat-card h4 { font-size: 1rem; }
+
+        /* TESTIMONIALS */
+        .testimonial-section { background: linear-gradient(135deg, #0f0c29, #302b63); color: #fff; }
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .testimonial {
+            background: rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .testimonial .stars { color: #ffc107; margin-bottom: 12px; font-size: 1.1rem; }
+        .testimonial p { font-size: 0.95rem; opacity: 0.9; margin-bottom: 15px; font-style: italic; }
+        .testimonial .author { display: flex; align-items: center; gap: 12px; }
+        .testimonial .avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+        .testimonial .author-info .name { font-weight: 700; font-size: 0.95rem; }
+        .testimonial .author-info .role { font-size: 0.8rem; opacity: 0.6; }
+
+        /* PRICING */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .pricing-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 35px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: 0.3s;
+            position: relative;
+        }
+        .pricing-card.popular {
+            border: 2px solid var(--accent);
+            transform: scale(1.05);
+        }
+        .pricing-card.popular .popular-badge {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: #fff;
+            padding: 4px 20px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+        .pricing-card h3 { font-size: 1.2rem; color: var(--primary); margin-bottom: 5px; }
+        .pricing-card .price { font-size: 2.5rem; font-weight: 800; color: var(--accent2); margin: 15px 0; }
+        .pricing-card .price span { font-size: 0.9rem; font-weight: 400; color: #888; }
+        .pricing-card ul { list-style: none; text-align: left; margin: 20px 0; }
+        .pricing-card ul li { padding: 8px 0; font-size: 0.9rem; border-bottom: 1px solid #f0f0f0; }
+        .pricing-card ul li::before { content: '✓ '; color: var(--accent); font-weight: 700; }
+        .pricing-card .btn { width: 100%; display: block; text-align: center; margin-top: 15px; }
+
+        /* CTA */
+        .cta-section {
+            background: linear-gradient(135deg, var(--accent), #c0392b);
+            color: #fff;
+            text-align: center;
+        }
+        .cta-section h2 { font-size: 2.2rem; margin-bottom: 15px; }
+        .cta-section p { font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto 30px; }
+        .cta-buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .btn-white {
+            background: #fff;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+
+        /* FOOTER */
+        footer {
+            background: var(--primary);
+            color: rgba(255,255,255,0.7);
+            padding: 50px 20px 25px;
+        }
+        .footer-grid {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 30px;
+        }
+        @media (max-width: 768px) {
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        footer h4 { color: #fff; margin-bottom: 15px; font-size: 1rem; }
+        footer a { color: rgba(255,255,255,0.6); text-decoration: none; display: block; padding: 4px 0; font-size: 0.88rem; transition: 0.2s; }
+        footer a:hover { color: #fff; padding-left: 5px; }
+        .footer-logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+        .footer-logo span { color: var(--accent); }
+        .footer-desc { font-size: 0.88rem; line-height: 1.6; margin-bottom: 15px; }
+        .social-links { display: flex; gap: 10px; }
+        .social-links a {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            padding: 0;
+        }
+        .social-links a:hover { background: var(--accent); }
+        .footer-bottom {
+            max-width: 1100px;
+            margin: 30px auto 0;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            font-size: 0.82rem;
+        }
+
+        /* ANIMATIONS */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .hero-stats { gap: 25px; }
+            .section-header h2 { font-size: 1.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-badge">🚀 PHIÊN BẢN 1.0 — RA MẮT 2026</div>
+        <h1>Tin Tức Thế Giới<br>Ngay Trong <span>Tầm Tay</span></h1>
+        <p>NewsHub tổng hợp và phân tích tin tức từ hàng trăm nguồn tin quốc tế và trong nước, gợi ý xu hướng theo thời gian thực — tất cả bằng tiếng Việt và tiếng Anh.</p>
+        <div class="hero-buttons">
+            <a href="news.html" class="btn btn-primary">🚀 Trải Nghiệm Ngay</a>
+            <a href="phuongan.html" class="btn btn-outline">📋 Xem Phương Án</a>
+        </div>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="num">48+</div>
+                <div class="label">Nguồn tin</div>
+            </div>
+            <div class="hero-stat">
+                <div class="num">12</div>
+                <div class="label">Quốc gia</div>
+            </div>
+            <div class="hero-stat">
+                <div class="num">2</div>
+                <div class="label">Ngôn ngữ</div>
+            </div>
+            <div class="hero-stat">
+                <div class="num">24/7</div>
+                <div class="label">Thời gian thực</div>
+            </div>
+        </div>
+    </div>
+    <div class="scroll-indicator">⬇</div>
+</section>
+
+<!-- ===================== VẤN ĐỀ ===================== -->
+<section class="problem-section">
+    <div class="container">
+        <div class="section-header fade-in">
+            <div class="tag">VẤN ĐỀ</div>
+            <h2>Bạn Có Đang Gặp Khó Khăn?</h2>
+            <p>Trong thời đại bùng nổ thông tin, việc theo dõi tin tức trở nên quá tải và mất thời gian</p>
+        </div>
+        <div class="problems-grid">
+            <div class="problem-card fade-in">
+                <div class="icon">😵</div>
+                <h3>Quá nhiều nguồn tin</h3>
+                <p>Phải mở hàng chục trang web, ứng dụng khác nhau để cập nhật tin từ BBC, CNN, VnExpress, Facebook, Twitter...</p>
+            </div>
+            <div class="problem-card fade-in">
+                <div class="icon">🌐</div>
+                <h3>Rào cản ngôn ngữ</h3>
+                <p>Tin quốc tế bằng tiếng Anh, Trung, Hàn, Nhật, Đức... không phải ai cũng đọc hiểu tất cả.</p>
+            </div>
+            <div class="problem-card fade-in">
+                <div class="icon">⏰</div>
+                <h3>Thiếu cập nhật thời gian thực</h3>
+                <p>Khi tin nóng xảy ra, bạn thường biết sau mọi người vì không có công cụ tổng hợp tức thì.</p>
+            </div>
+            <div class="problem-card fade-in">
+                <div class="icon">📊</div>
+                <h3>Khó phân biệt xu hướng</h3>
+                <p>Không biết tin nào đang hot, tin nào nhiều người quan tâm, đâu là xu hướng thực sự.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== GIẢI PHÁP ===================== -->
+<section>
+    <div class="container">
+        <div class="section-header fade-in">
+            <div class="tag">GIẢI PHÁP</div>
+            <h2>NewsHub — Tất Cả Trong Một</h2>
+            <p>Chúng tôi xây dựng nền tảng thông minh giải quyết mọi vấn đề trên</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card fade-in">
+                <div class="feature-icon fi-1">🤖</div>
+                <h3>Thu Thập Tự Động Bằng AI</h3>
+                <p>Hệ thống crawler thông minh tự động thu thập tin từ hơn 48 nguồn tin uy tín tại 12 quốc gia, cập nhật mỗi 1-5 phút.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon fi-2">🔥</div>
+                <h3>Xu Hướng Thời Gian Thực</h3>
+                <p>Thuật toán phân tích lượt xem, bình luận, chia sẻ để xếp hạng và gợi ý tin đang trending ngay lúc này.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon fi-3">🌍</div>
+                <h3>Song Ngữ Việt - Anh</h3>
+                <p>Tự động dịch tin quốc tế sang tiếng Việt và ngược lại. Giao diện chuyển đổi linh hoạt giữa 2 ngôn ngữ.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon fi-4">📱</div>
+                <h3>Phân Loại Thông Minh</h3>
+                <p>AI tự động phân loại tin theo chủ đề: Chính trị, Kinh tế, Giải trí, Công nghệ, Thể thao — và theo quốc gia.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon fi-5">💡</div>
+                <h3>Gợi Ý Cá Nhân Hóa</h3>
+                <p>Hệ thống recommendation học từ thói quen đọc của bạn để gợi ý tin phù hợp sở thích nhất.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <div class="feature-icon fi-6">📊</div>
+                <h3>Thống Kê Tương Tác</h3>
+                <p>Hiển thị số liệu views, comments, shares giúp bạn đánh giá mức độ quan tâm của cộng đồng.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== CÁCH HOẠT ĐỘNG ===================== -->
+<section class="how-section">
+    <div class="container">
+        <div class="section-header fade-in">
+            <div class="tag">CÁCH HOẠT ĐỘNG</div>
+            <h2>Đơn Giản Chỉ Với 4 Bước</h2>
+        </div>
+        <div class="steps">
+            <div class="step fade-in">
+                <div class="step-num">1</div>
+                <h3>Thu Thập</h3>
+                <p>Hệ thống tự động quét tin từ BBC, CNN, VnExpress, Facebook, Twitter/X và hàng chục nguồn khác.</p>
+                <span class="step-arrow">→</span>
+            </div>
+            <div class="step fade-in">
+                <div class="step-num">2</div>
+                <h3>Phân Tích</h3>
+                <p>AI phân loại tin theo chủ đề, quốc gia và tính toán trending score dựa trên tương tác.</p>
+                <span class="step-arrow">→</span>
+            </div>
+            <div class="step fade-in">
+                <div class="step-num">3</div>
+                <h3>Xếp Hạng</h3>
+                <p>Thuật toán xếp hạng tin theo độ hot, độ mới và mức độ phù hợp với sở thích người đọc.</p>
+                <span class="step-arrow">→</span>
+            </div>
+            <div class="step fade-in">
+                <div class="step-num">4</div>
+                <h3>Hiển Thị</h3>
+                <p>Giao diện trực quan hiển thị tin tức xu hướng, cá nhân hóa theo ngôn ngữ và sở thích.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== NGUỒN TIN ===================== -->
+<section>
+    <div class="container">
+        <div class="section-header fade-in">
+            <div class="tag">NGUỒN TIN</div>
+            <h2>Kết Nối 12 Quốc Gia</h2>
+            <p>Thu thập từ các trang thông tin uy tín nhất thế giới</p>
+        </div>
+        <div class="sources-grid fade-in">
+            <div class="source-card">
+                <div class="flag">🇻🇳</div>
+                <div class="country">Việt Nam</div>
+                <div class="sources">VnExpress, Tuổi Trẻ, Thanh Niên, Dân Trí</div>
+            </div>
+            <div class="source-card">
+                <div class="flag">🇺🇸</div>
+                <div class="country">Mỹ</div>
+                <div class="sources">CNN, Reuters, Bloomberg, TechCrunch</div>
+            </div>
+            <div class="source-card">
+                <div class="flag">🇬🇧</div>
+                <div class="country">Anh</div>
+                <div class="sources">BBC, The Guardian, Financial Times</div>
+            </div>
+            <div class="source-card">
+                <div class="flag">🇨🇳</div>
+                <div class="country">Trung Quốc</div>
+                <div class="sources">Xinhua, CGTN, South China Morning Post</div>
+            </div>
+            <div class="source-card">
+                <div class="flag">🇰🇷</div>
+                <div class="country">Hàn Quốc</div>
+                <div class="sources">Yonhap, Korea Herald, KBS</div>
+            </div>
+            <div class="source-card">
+                <div class="flag">🇯🇵</div>
+                <div class="country">Nhật Bản</div>
+                <div class="sources">NHK, Nikkei, Asahi Shimbun</div>
+            </div>
+            <div class="source-card">
+                <div class="flag">🇩🇪</div>
+                <div class="country">Đức</div>
+                <div class="sources">DW, Der Spiegel, Die Zeit</div>
+            </div>
+            <div class="source-card">
+                <div class="flag">🇫🇷</div>
+                <div class="country">Pháp</div>
+                <div class="sources">AFP, Le Monde, France 24</div>
+            </div>
+            <div class="source-card">
+                <div class="flag">🇦🇺</div>
+                <div class="country">Úc</div>
+                <div class="sources">ABC News, Sydney Morning Herald</div>
+            </div>
+            <div class="source-card">
+                <div class="flag">🇮🇳</div>
+                <div class="country">Ấn Độ</div>
+                <div class="sources">Times of India, NDTV, Hindustan Times</div>
+            </div>
+            <div class="source-card">
+                <div class="flag">🇸🇬</div>
+                <div class="country">Singapore</div>
+                <div class="sources">Straits Times, Channel NewsAsia</div>
+            </div>
+            <div class="source-card">
+                <div class="flag">🌐</div>
+                <div class="country">Mạng Xã Hội</div>
+                <div class="sources">Facebook, Twitter/X, YouTube</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== NGÔN NGỮ ===================== -->
+<section style="background: var(--light);">
+    <div class="container">
+        <div class="section-header fade-in">
+            <div class="tag">ĐA NGÔN NGỮ</div>
+            <h2>Phục Vụ Mọi Đối Tượng</h2>
+            <p>Tự động nhận diện và tối ưu trải nghiệm cho người Việt Nam và người nước ngoài</p>
+        </div>
+        <div class="lang-compare fade-in">
+            <div class="lang-card">
+                <div class="flag">🇻🇳</div>
+                <h3>Người Dùng Việt Nam</h3>
+                <p>Giao diện tiếng Việt, ưu tiên tin trong nước</p>
+                <ul>
+                    <li>Ngôn ngữ mặc định: Tiếng Việt</li>
+                    <li>Trang chủ ưu tiên tin Việt Nam</li>
+                    <li>Tin quốc tế được dịch sang tiếng Việt</li>
+                    <li>Nguồn tin: VnExpress, Tuổi Trẻ + quốc tế</li>
+                    <li>Xu hướng: Mạng xã hội VN + thế giới</li>
+                </ul>
+            </div>
+            <div class="lang-card">
+                <div class="flag">🇺🇸</div>
+                <h3>International Users</h3>
+                <p>English interface, global news priority</p>
+                <ul>
+                    <li>Default language: English</li>
+                    <li>Homepage prioritizes world news</li>
+                    <li>Vietnam news translated to English</li>
+                    <li>Sources: BBC, CNN, Reuters + local</li>
+                    <li>Trending: Global social media + regional</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== DANH MỤC ===================== -->
+<section>
+    <div class="container">
+        <div class="section-header fade-in">
+            <div class="tag">DANH MỤC</div>
+            <h2>Phân Loại Rõ Ràng</h2>
+            <p>Tin tức được sắp xếp theo chủ đề giúp bạn dễ dàng tìm kiếm</p>
+        </div>
+        <div class="cat-grid fade-in">
+            <div class="cat-card" style="background: linear-gradient(135deg, #1a237e, #3949ab);">
+                <div class="cat-icon">🏛️</div>
+                <h4>Chính Trị</h4>
+            </div>
+            <div class="cat-card" style="background: linear-gradient(135deg, #1b5e20, #43a047);">
+                <div class="cat-icon">📊</div>
+                <h4>Kinh Tế</h4>
+            </div>
+            <div class="cat-card" style="background: linear-gradient(135deg, #880e4f, #e91e63);">
+                <div class="cat-icon">🎭</div>
+                <h4>Giải Trí<br>Văn Hóa</h4>
+            </div>
+            <div class="cat-card" style="background: linear-gradient(135deg, #4a148c, #9c27b0);">
+                <div class="cat-icon">💻</div>
+                <h4>Công Nghệ</h4>
+            </div>
+            <div class="cat-card" style="background: linear-gradient(135deg, #bf360c, #ff5722);">
+                <div class="cat-icon">⚽</div>
+                <h4>Thể Thao</h4>
+            </div>
+            <div class="cat-card" style="background: linear-gradient(135deg, #004d40, #00897b);">
+                <div class="cat-icon">🌍</div>
+                <h4>Xã Hội</h4>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== ĐÁNH GIÁ ===================== -->
+<section class="testimonial-section">
+    <div class="container">
+        <div class="section-header fade-in">
+            <div class="tag" style="background: rgba(233,69,96,0.3); color: #ff6b8a;">ĐÁNH GIÁ</div>
+            <h2 style="color: #fff;">Người Dùng Nói Gì?</h2>
+        </div>
+        <div class="testimonials-grid fade-in">
+            <div class="testimonial">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"Trước đây tôi phải mở 10 tab để đọc tin mỗi sáng. Giờ chỉ cần mở NewsHub là đủ. Tính năng trending rất chính xác!"</p>
+                <div class="author">
+                    <div class="avatar" style="background: #e3f2fd;">👨‍💼</div>
+                    <div class="author-info">
+                        <div class="name">Nguyễn Minh Tuấn</div>
+                        <div class="role">Giám đốc Marketing, Hà Nội</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"As an expat in Vietnam, NewsHub helps me stay connected to both local and global news. The auto-translation feature is a game changer!"</p>
+                <div class="author">
+                    <div class="avatar" style="background: #fce4ec;">👩‍💻</div>
+                    <div class="author-info">
+                        <div class="name">Sarah Johnson</div>
+                        <div class="role">Software Engineer, Ho Chi Minh City</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial">
+                <div class="stars">⭐⭐⭐⭐⭐</div>
+                <p>"Tính năng gợi ý cá nhân hóa rất thông minh. Sau vài ngày sử dụng, NewsHub hiểu chính xác tôi muốn đọc gì. Tuyệt vời!"</p>
+                <div class="author">
+                    <div class="avatar" style="background: #e8f5e9;">👩‍🎓</div>
+                    <div class="author-info">
+                        <div class="name">Trần Thị Hương</div>
+                        <div class="role">Nhà báo tự do, Đà Nẵng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== BẢNG GIÁ ===================== -->
+<section>
+    <div class="container">
+        <div class="section-header fade-in">
+            <div class="tag">BẢNG GIÁ</div>
+            <h2>Gói Dịch Vụ Phù Hợp</h2>
+            <p>Chọn gói phù hợp với nhu cầu của bạn</p>
+        </div>
+        <div class="pricing-grid fade-in">
+            <div class="pricing-card">
+                <h3>Miễn Phí</h3>
+                <div class="price">0đ <span>/ tháng</span></div>
+                <ul>
+                    <li>Truy cập tin tức cơ bản</li>
+                    <li>Xu hướng trending</li>
+                    <li>2 ngôn ngữ (VN, EN)</li>
+                    <li>5 danh mục tin tức</li>
+                    <li>Quảng cáo hiển thị</li>
+                </ul>
+                <a href="news.html" class="btn btn-outline" style="color:var(--accent2);border-color:var(--accent2);">Bắt Đầu Miễn Phí</a>
+            </div>
+            <div class="pricing-card popular">
+                <div class="popular-badge">PHỔ BIẾN NHẤT</div>
+                <h3>Premium</h3>
+                <div class="price">99K <span>/ tháng</span></div>
+                <ul>
+                    <li>Tất cả tính năng Free</li>
+                    <li>Gợi ý cá nhân hóa AI</li>
+                    <li>Không quảng cáo</li>
+                    <li>Thông báo tin nóng</li>
+                    <li>12 quốc gia nguồn tin</li>
+                    <li>Đọc offline</li>
+                </ul>
+                <a href="news.html" class="btn btn-primary">Nâng Cấp Premium</a>
+            </div>
+            <div class="pricing-card">
+                <h3>Enterprise</h3>
+                <div class="price">Liên hệ</div>
+                <ul>
+                    <li>Tất cả tính năng Premium</li>
+                    <li>API truy cập dữ liệu</li>
+                    <li>Dashboard phân tích</li>
+                    <li>Tùy chỉnh nguồn tin</li>
+                    <li>Hỗ trợ 24/7</li>
+                    <li>SLA cam kết</li>
+                </ul>
+                <a href="#" class="btn btn-outline" style="color:var(--accent2);border-color:var(--accent2);">Liên Hệ Tư Vấn</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== CTA ===================== -->
+<section class="cta-section">
+    <div class="container">
+        <h2>Sẵn Sàng Trải Nghiệm?</h2>
+        <p>Hãy bắt đầu ngay hôm nay để không bỏ lỡ bất kỳ tin tức quan trọng nào. Miễn phí, không cần đăng ký.</p>
+        <div class="cta-buttons">
+            <a href="news.html" class="btn btn-white">🚀 Trải Nghiệm NewsHub Ngay</a>
+            <a href="phuongan.html" class="btn btn-outline" style="border-color: rgba(255,255,255,0.5);">📋 Xem Phương Án Kỹ Thuật</a>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+    <div class="footer-grid">
+        <div>
+            <div class="footer-logo">News<span>Hub</span></div>
+            <p class="footer-desc">Nền tảng tổng hợp tin tức thời gian thực đa ngôn ngữ, kết nối người đọc Việt Nam với thế giới.</p>
+            <div class="social-links">
+                <a href="#">📘</a>
+                <a href="#">🐦</a>
+                <a href="#">📺</a>
+                <a href="#">📷</a>
+            </div>
+        </div>
+        <div>
+            <h4>Sản Phẩm</h4>
+            <a href="news.html">Ứng dụng Web</a>
+            <a href="#">Ứng dụng Mobile</a>
+            <a href="#">API Developer</a>
+            <a href="phuongan.html">Phương án kỹ thuật</a>
+        </div>
+        <div>
+            <h4>Hỗ Trợ</h4>
+            <a href="#">Trung tâm trợ giúp</a>
+            <a href="#">Câu hỏi thường gặp</a>
+            <a href="#">Liên hệ</a>
+            <a href="#">Góp ý & phản hồi</a>
+        </div>
+        <div>
+            <h4>Pháp Lý</h4>
+            <a href="#">Điều khoản sử dụng</a>
+            <a href="#">Chính sách bảo mật</a>
+            <a href="#">Bản quyền nội dung</a>
+            <a href="#">GDPR Compliance</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        © 2026 NewsHub. Bản quyền thuộc về NewsHub. Thiết kế và phát triển tại Việt Nam 🇻🇳
+    </div>
+</footer>
+
+<script>
+// Scroll animation
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

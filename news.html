@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsHub — Tổng Hợp Tin Tức Thời Gian Thực</title>
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --primary-light: #16213e;
+            --accent: #e94560;
+            --accent2: #0f3460;
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --text: #1a1a2e;
+            --text-light: #6c757d;
+            --border: #e0e0e0;
+            --success: #28a745;
+            --warning: #ffc107;
+            --trending: #ff6b35;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+            --font-scale: 1;
+        }
+        [data-theme="dark"] {
+            --primary: #0a0a1a;
+            --primary-light: #1a1a2e;
+            --bg: #121212;
+            --card: #1e1e2e;
+            --text: #e0e0e0;
+            --text-light: #aaa;
+            --border: #333;
+            --shadow: 0 2px 12px rgba(0,0,0,0.3);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+            font-size: calc(16px * var(--font-scale));
+        }
+
+        /* TOP BAR */
+        .top-bar {
+            background: linear-gradient(135deg, var(--primary), var(--accent2));
+            color: #fff;
+            padding: 6px 20px;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .top-bar .live-dot {
+            width: 8px; height: 8px;
+            background: #ff4444;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+            margin-right: 6px;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .top-bar .controls { display: flex; gap: 8px; align-items: center; }
+        .top-bar button, .top-bar select {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; padding: 4px 10px; border-radius: 6px;
+            cursor: pointer; font-size: 0.78rem; transition: 0.2s;
+        }
+        .top-bar button:hover { background: rgba(255,255,255,0.25); }
+
+        /* AUTO REFRESH BAR */
+        .refresh-bar {
+            height: 3px;
+            background: var(--border);
+            position: relative;
+        }
+        .refresh-bar .refresh-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--trending));
+            width: 0%;
+            transition: width 1s linear;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: #fff; position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+        }
+        .header-main {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 30px; max-width: 1400px; margin: 0 auto;
+        }
+        .logo { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; cursor: pointer; }
+        .logo span { color: var(--accent); }
+        .search-box {
+            display: flex; align-items: center;
+            background: rgba(255,255,255,0.1); border-radius: 25px;
+            padding: 6px 16px; flex: 0 1 400px; position: relative;
+        }
+        .search-box input {
+            background: transparent; border: none; color: #fff;
+            outline: none; width: 100%; font-size: 0.95rem; padding: 4px 8px;
+        }
+        .search-box input::placeholder { color: rgba(255,255,255,0.5); }
+        .search-clear {
+            background: none; border: none; color: rgba(255,255,255,0.5);
+            cursor: pointer; font-size: 1rem; display: none; padding: 0 4px;
+        }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .btn-lang {
+            padding: 5px 12px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: transparent; color: #fff; cursor: pointer;
+            font-size: 0.82rem; transition: 0.2s;
+        }
+        .btn-lang.active, .btn-lang:hover { background: var(--accent); border-color: var(--accent); }
+        .btn-icon {
+            background: rgba(255,255,255,0.1); border: none; color: #fff;
+            width: 34px; height: 34px; border-radius: 50%;
+            cursor: pointer; font-size: 1rem; display: flex;
+            align-items: center; justify-content: center; transition: 0.2s;
+            position: relative;
+        }
+        .btn-icon:hover { background: rgba(255,255,255,0.2); }
+        .btn-icon .badge-count {
+            position: absolute; top: -4px; right: -4px;
+            background: var(--accent); color: #fff; font-size: 0.6rem;
+            min-width: 16px; height: 16px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+        }
+
+        /* NAV */
+        nav { background: rgba(0,0,0,0.2); overflow-x: auto; }
+        nav::-webkit-scrollbar { height: 0; }
+        nav ul { display: flex; list-style: none; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+        nav li a {
+            display: block; padding: 10px 18px; color: rgba(255,255,255,0.7);
+            text-decoration: none; font-size: 0.88rem; font-weight: 500;
+            white-space: nowrap; transition: 0.2s; border-bottom: 3px solid transparent;
+        }
+        nav li a:hover, nav li a.active { color: #fff; border-bottom-color: var(--accent); }
+
+        /* TICKER */
+        .ticker-wrap {
+            background: var(--accent); color: #fff;
+            overflow: hidden; padding: 7px 0; position: relative;
+        }
+        .ticker-label {
+            position: absolute; left: 0; top: 0; bottom: 0;
+            background: #c0392b; padding: 7px 15px;
+            font-weight: 700; font-size: 0.82rem; z-index: 2;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .ticker-content {
+            display: flex; animation: ticker 40s linear infinite;
+            padding-left: 160px;
+        }
+        .ticker-content span { white-space: nowrap; padding: 0 40px; font-size: 0.88rem; }
+        @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+        /* CONTAINER */
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+        /* STATS BAR */
+        .stats-bar {
+            display: grid; grid-template-columns: repeat(5, 1fr);
+            gap: 12px; margin-bottom: 22px;
+        }
+        .stat-item {
+            background: var(--card); border-radius: 10px;
+            padding: 15px; text-align: center; box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+        .stat-item:hover { transform: translateY(-2px); }
+        .stat-num { font-size: 1.5rem; font-weight: 800; color: var(--accent2); }
+        .stat-label { font-size: 0.78rem; color: var(--text-light); margin-top: 3px; }
+        @media(max-width:700px){ .stats-bar{grid-template-columns:repeat(2,1fr)} }
+
+        /* COUNTRY TABS */
+        .country-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .country-tab {
+            padding: 5px 14px; border-radius: 20px;
+            border: 1px solid var(--border); background: var(--card);
+            color: var(--text); cursor: pointer; font-size: 0.82rem; transition: 0.2s;
+        }
+        .country-tab:hover, .country-tab.active { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+
+        /* SORT BAR */
+        .sort-bar {
+            display: flex; gap: 10px; align-items: center; margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .sort-bar label { font-size: 0.85rem; font-weight: 600; color: var(--text-light); }
+        .sort-btn {
+            padding: 5px 14px; border-radius: 15px;
+            border: 1px solid var(--border); background: var(--card);
+            color: var(--text); cursor: pointer; font-size: 0.8rem; transition: 0.2s;
+        }
+        .sort-btn:hover, .sort-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        /* MAIN LAYOUT */
+        .main-layout { display: grid; grid-template-columns: 1fr 340px; gap: 25px; }
+        @media(max-width:960px){ .main-layout{grid-template-columns:1fr} }
+        .section-title {
+            font-size: 1.2rem; font-weight: 700; color: var(--text);
+            margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+        }
+        .section-title .icon { font-size: 1.3rem; }
+        .section-title .line { flex: 1; height: 2px; background: var(--border); }
+
+        /* NEWS GRID */
+        .news-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 18px;
+        }
+        .news-card {
+            background: var(--card); border-radius: 12px; overflow: hidden;
+            box-shadow: var(--shadow); transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer; position: relative; opacity: 0;
+            animation: fadeInCard 0.4s ease forwards;
+        }
+        @keyframes fadeInCard { to { opacity: 1; transform: translateY(0); } }
+        .news-card { transform: translateY(15px); }
+        .news-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+        .news-card.read-article { opacity: 0.7; }
+        .news-card.read-article::after {
+            content: ''; position: absolute; top: 12px; left: 12px;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--success); border: 2px solid var(--card);
+        }
+        .card-img {
+            width: 100%; height: 170px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 3rem; position: relative;
+        }
+        .card-img .read-time {
+            position: absolute; bottom: 8px; left: 8px;
+            background: rgba(0,0,0,0.6); color: #fff;
+            padding: 2px 8px; border-radius: 10px; font-size: 0.7rem;
+        }
+        .card-body { padding: 14px; }
+        .card-category {
+            display: inline-block; padding: 2px 10px; border-radius: 12px;
+            font-size: 0.7rem; font-weight: 600; margin-bottom: 6px;
+        }
+        .cat-politics{background:#e3f2fd;color:#1565c0} .cat-economy{background:#e8f5e9;color:#2e7d32}
+        .cat-entertainment{background:#fce4ec;color:#c62828} .cat-tech{background:#f3e5f5;color:#7b1fa2}
+        .cat-sports{background:#fff3e0;color:#e65100} .cat-society{background:#e0f7fa;color:#00695c}
+        .card-title {
+            font-size: calc(0.95rem * var(--font-scale)); font-weight: 700;
+            margin-bottom: 6px; line-height: 1.4;
+            display: -webkit-box; -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .card-excerpt {
+            font-size: calc(0.82rem * var(--font-scale)); color: var(--text-light);
+            display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px;
+        }
+        .card-meta {
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 0.75rem; color: var(--text-light);
+            border-top: 1px solid var(--border); padding-top: 8px;
+        }
+        .card-stats { display: flex; gap: 10px; }
+        .card-stats span { display: flex; align-items: center; gap: 2px; }
+        .card-source { font-weight: 600; color: var(--accent2); }
+        .card-actions {
+            position: absolute; top: 8px; right: 8px;
+            display: flex; gap: 4px; opacity: 0; transition: 0.2s;
+        }
+        .news-card:hover .card-actions { opacity: 1; }
+        .card-action-btn {
+            width: 30px; height: 30px; border-radius: 50%;
+            background: rgba(0,0,0,0.5); border: none; color: #fff;
+            cursor: pointer; font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: 0.2s;
+        }
+        .card-action-btn:hover { background: var(--accent); }
+        .card-action-btn.bookmarked { background: var(--warning); }
+        .trending-badge {
+            position: absolute; top: 8px; left: 8px;
+            background: var(--trending); color: #fff;
+            padding: 2px 10px; border-radius: 12px;
+            font-size: 0.7rem; font-weight: 700;
+        }
+        .featured-card { grid-column: 1 / -1; display: grid; grid-template-columns: 1.2fr 1fr; }
+        .featured-card .card-img { height: 100%; min-height: 260px; }
+        .featured-card .card-body { padding: 22px; display: flex; flex-direction: column; justify-content: center; }
+        .featured-card .card-title { font-size: calc(1.3rem * var(--font-scale)); -webkit-line-clamp: 4; }
+        .featured-card .card-excerpt { -webkit-line-clamp: 3; }
+        @media(max-width:700px){
+            .featured-card{grid-template-columns:1fr}
+            .featured-card .card-img{min-height:180px}
+        }
+
+        /* SKELETON LOADING */
+        .skeleton-card {
+            background: var(--card); border-radius: 12px; overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .skeleton-img { height: 170px; background: var(--border); }
+        .skeleton-body { padding: 14px; }
+        .skeleton-line {
+            height: 14px; border-radius: 7px; margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--border) 25%, transparent 50%, var(--border) 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s infinite;
+        }
+        .skeleton-line.w60{width:60%} .skeleton-line.w80{width:80%} .skeleton-line.w40{width:40%}
+        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+        /* SIDEBAR */
+        .sidebar { position: sticky; top: 110px; }
+        .sidebar-card {
+            background: var(--card); border-radius: 12px; padding: 18px;
+            box-shadow: var(--shadow); margin-bottom: 18px;
+        }
+        .sidebar-card h3 {
+            font-size: 1rem; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .trending-list { list-style: none; }
+        .trending-list li {
+            padding: 8px 0; border-bottom: 1px solid var(--border);
+            display: flex; gap: 10px; transition: 0.2s; cursor: pointer;
+        }
+        .trending-list li:hover { padding-left: 5px; }
+        .trending-list li:last-child { border: none; }
+        .trending-num { font-size: 1.4rem; font-weight: 800; color: var(--accent); min-width: 28px; }
+        .trending-info .t-title {
+            font-size: 0.85rem; font-weight: 600; line-height: 1.3;
+            display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .trending-info .t-meta { font-size: 0.72rem; color: var(--text-light); margin-top: 3px; }
+        .trending-chart { width: 100%; height: 5px; background: var(--border); border-radius: 3px; margin-top: 4px; overflow: hidden; }
+        .trending-chart .bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--trending)); transition: width 0.5s; }
+
+        /* WEATHER WIDGET */
+        .weather-widget {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px; background: linear-gradient(135deg, #4fc3f7, #0288d1);
+            border-radius: 10px; color: #fff; margin-bottom: 12px;
+        }
+        .weather-icon { font-size: 2.2rem; }
+        .weather-info .temp { font-size: 1.4rem; font-weight: 700; }
+        .weather-info .desc { font-size: 0.78rem; opacity: 0.85; }
+
+        /* NOTIFICATION */
+        .notification-panel {
+            position: fixed; top: 0; right: -380px; width: 370px;
+            height: 100vh; background: var(--card); z-index: 200;
+            box-shadow: -4px 0 25px rgba(0,0,0,0.15); transition: right 0.3s;
+            overflow-y: auto;
+        }
+        .notification-panel.open { right: 0; }
+        .notification-panel .panel-header {
+            padding: 18px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; background: var(--card); z-index: 2;
+        }
+        .notification-panel .panel-header h3 { font-size: 1.1rem; }
+        .notification-panel .panel-close {
+            background: none; border: none; font-size: 1.3rem;
+            cursor: pointer; color: var(--text);
+        }
+        .notif-item {
+            padding: 14px 18px; border-bottom: 1px solid var(--border);
+            cursor: pointer; transition: 0.2s;
+        }
+        .notif-item:hover { background: rgba(233,69,96,0.05); }
+        .notif-item.unread { border-left: 3px solid var(--accent); }
+        .notif-item .notif-title { font-size: 0.88rem; font-weight: 600; margin-bottom: 4px; }
+        .notif-item .notif-meta { font-size: 0.75rem; color: var(--text-light); }
+
+        /* BOOKMARK PANEL */
+        .bookmark-panel {
+            position: fixed; top: 0; right: -380px; width: 370px;
+            height: 100vh; background: var(--card); z-index: 200;
+            box-shadow: -4px 0 25px rgba(0,0,0,0.15); transition: right 0.3s;
+            overflow-y: auto;
+        }
+        .bookmark-panel.open { right: 0; }
+        .bookmark-panel .panel-header {
+            padding: 18px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; background: var(--card); z-index: 2;
+        }
+        .bookmark-empty {
+            text-align: center; padding: 40px 20px; color: var(--text-light);
+        }
+        .bookmark-item {
+            padding: 12px 18px; border-bottom: 1px solid var(--border);
+            display: flex; gap: 10px; cursor: pointer; transition: 0.2s;
+        }
+        .bookmark-item:hover { background: rgba(233,69,96,0.05); }
+        .bookmark-item .bm-icon { font-size: 1.5rem; }
+        .bookmark-item .bm-title { font-size: 0.88rem; font-weight: 600; line-height: 1.3; }
+        .bookmark-item .bm-meta { font-size: 0.72rem; color: var(--text-light); margin-top: 3px; }
+        .bookmark-item .bm-remove {
+            margin-left: auto; background: none; border: none;
+            color: var(--text-light); cursor: pointer; font-size: 1rem;
+        }
+
+        /* HISTORY PANEL */
+        .history-panel {
+            position: fixed; top: 0; right: -380px; width: 370px;
+            height: 100vh; background: var(--card); z-index: 200;
+            box-shadow: -4px 0 25px rgba(0,0,0,0.15); transition: right 0.3s;
+            overflow-y: auto;
+        }
+        .history-panel.open { right: 0; }
+        .history-panel .panel-header {
+            padding: 18px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; background: var(--card); z-index: 2;
+        }
+        .history-stats {
+            padding: 15px 18px; background: var(--bg);
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; text-align: center;
+        }
+        .history-stats .hs-num { font-size: 1.2rem; font-weight: 800; color: var(--accent2); }
+        .history-stats .hs-label { font-size: 0.7rem; color: var(--text-light); }
+
+        /* OVERLAY for panels */
+        .panel-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4); z-index: 199;
+            display: none; opacity: 0; transition: opacity 0.3s;
+        }
+        .panel-overlay.show { display: block; opacity: 1; }
+
+        /* FONT CONTROLS */
+        .font-controls {
+            display: flex; gap: 4px; align-items: center;
+        }
+        .font-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: #fff; width: 26px; height: 26px; border-radius: 50%;
+            cursor: pointer; font-size: 0.75rem; display: flex;
+            align-items: center; justify-content: center;
+        }
+        .font-btn:hover { background: rgba(255,255,255,0.25); }
+
+        /* TOAST */
+        .toast-container {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 999; display: flex; flex-direction: column; gap: 8px; align-items: center;
+        }
+        .toast {
+            background: var(--primary); color: #fff; padding: 10px 24px;
+            border-radius: 25px; font-size: 0.88rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+            display: flex; align-items: center; gap: 8px;
+        }
+        @keyframes toastIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes toastOut { to{opacity:0;transform:translateY(20px)} }
+
+        /* NOTIFICATION POPUP */
+        .notif-popup {
+            position: fixed; top: 20px; right: 20px;
+            background: var(--card); border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15); padding: 16px 20px;
+            z-index: 300; max-width: 350px; transform: translateX(120%);
+            transition: transform 0.4s ease; border-left: 4px solid var(--accent);
+        }
+        .notif-popup.show { transform: translateX(0); }
+        .notif-popup .np-title { font-size: 0.72rem; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+        .notif-popup .np-content { font-size: 0.88rem; font-weight: 600; line-height: 1.3; }
+        .notif-popup .np-close {
+            position: absolute; top: 8px; right: 10px;
+            background: none; border: none; cursor: pointer; color: var(--text-light); font-size: 1rem;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); z-index: 1000;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-content {
+            background: var(--card); border-radius: 16px;
+            max-width: 750px; width: 100%; max-height: 88vh;
+            overflow-y: auto; position: relative;
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn { from{opacity:0;transform:scale(0.9)} to{opacity:1;transform:scale(1)} }
+        .modal-close {
+            position: absolute; top: 12px; right: 12px;
+            background: rgba(0,0,0,0.15); border: none; font-size: 1.3rem;
+            cursor: pointer; width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff; z-index: 10; transition: 0.2s;
+        }
+        .modal-close:hover { background: var(--accent); }
+        .modal-img {
+            width: 100%; height: 280px;
+            border-radius: 16px 16px 0 0;
+            display: flex; align-items: center; justify-content: center; font-size: 4rem;
+        }
+        .modal-body { padding: 28px; }
+        .modal-body h2 { font-size: calc(1.4rem * var(--font-scale)); margin-bottom: 10px; line-height: 1.4; }
+        .modal-body .meta-row {
+            display: flex; gap: 12px; margin-bottom: 18px;
+            font-size: 0.82rem; color: var(--text-light); flex-wrap: wrap;
+        }
+        .modal-body .content { font-size: calc(1rem * var(--font-scale)); line-height: 1.9; }
+        .modal-body .content p { margin-bottom: 14px; }
+        .modal-actions {
+            display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap;
+            padding-top: 15px; border-top: 1px solid var(--border);
+        }
+        .modal-action-btn {
+            padding: 8px 16px; border-radius: 8px; border: none;
+            cursor: pointer; font-size: 0.82rem; font-weight: 600;
+            display: flex; align-items: center; gap: 5px; transition: 0.2s;
+        }
+        .share-fb{background:#1877f2;color:#fff} .share-tw{background:#1da1f2;color:#fff}
+        .share-copy{background:var(--text-light);color:#fff}
+        .share-bookmark{background:var(--warning);color:#333}
+        .share-bookmark.active{background:var(--success);color:#fff}
+
+        /* KEYBOARD HELP */
+        .kbd-help {
+            position: fixed; bottom: 80px; right: 30px;
+            background: var(--card); border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); padding: 18px;
+            z-index: 100; display: none; min-width: 240px;
+        }
+        .kbd-help.show { display: block; }
+        .kbd-help h4 { font-size: 0.9rem; margin-bottom: 10px; }
+        .kbd-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.82rem; }
+        .kbd-key {
+            background: var(--bg); padding: 2px 8px; border-radius: 4px;
+            font-family: monospace; font-size: 0.78rem; border: 1px solid var(--border);
+        }
+
+        /* SCROLL TOP */
+        .scroll-top {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 42px; height: 42px; border-radius: 50%;
+            background: var(--accent); color: #fff; border: none;
+            cursor: pointer; font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(233,69,96,0.3);
+            display: none; align-items: center; justify-content: center;
+            z-index: 99; transition: 0.3s;
+        }
+        .scroll-top.show { display: flex; }
+
+        /* FOOTER */
+        footer {
+            background: var(--primary); color: rgba(255,255,255,0.7);
+            padding: 35px 20px; margin-top: 35px;
+        }
+        .footer-grid {
+            max-width: 1400px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px;
+        }
+        .footer-grid h4 { color: #fff; margin-bottom: 10px; }
+        .footer-grid a { color: rgba(255,255,255,0.6); text-decoration: none; display: block; padding: 3px 0; font-size: 0.88rem; }
+        .footer-grid a:hover { color: #fff; }
+        .footer-bottom {
+            max-width: 1400px; margin: 18px auto 0; padding-top: 18px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center; font-size: 0.82rem;
+        }
+
+        /* SOURCE LINK */
+        .card-source-link {
+            display: flex; align-items: center; gap: 4px;
+            font-size: 0.72rem; margin-top: 6px;
+        }
+        .card-source-link a {
+            color: var(--accent2); text-decoration: none;
+            font-weight: 500; transition: 0.2s;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 200px;
+        }
+        .card-source-link a:hover { color: var(--accent); text-decoration: underline; }
+        .modal-source-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; background: var(--bg); border-radius: 8px;
+            margin-top: 15px; margin-bottom: 10px; font-size: 0.85rem;
+            transition: 0.2s;
+        }
+        .modal-source-link a {
+            color: var(--accent2); text-decoration: none; font-weight: 600;
+            word-break: break-all;
+        }
+        .modal-source-link a:hover { color: var(--accent); text-decoration: underline; }
+        .btn-read-original {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 10px 22px; background: var(--accent2); color: #fff;
+            border: none; border-radius: 8px; font-size: 0.9rem;
+            font-weight: 600; cursor: pointer; transition: 0.2s;
+            text-decoration: none; margin-top: 8px;
+        }
+        .btn-read-original:hover { background: var(--accent); transform: translateY(-1px); }
+        .live-feed-source {
+            font-size: 0.7rem; color: var(--accent2);
+            text-decoration: none; display: inline-block; margin-top: 2px;
+        }
+        .live-feed-source:hover { text-decoration: underline; }
+        .rss-status {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.75rem; color: var(--text-light);
+            padding: 6px 0; border-bottom: 1px solid var(--border);
+            margin-bottom: 8px;
+        }
+        .rss-status .rss-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--success); animation: pulse 2s infinite;
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:768px){
+            .header-main{flex-wrap:wrap;gap:8px;padding:8px 12px}
+            .search-box{flex:1 1 100%;order:3}
+            nav li a{padding:8px 12px;font-size:0.8rem}
+            .news-grid{grid-template-columns:1fr}
+            .container{padding:10px}
+            .notification-panel,.bookmark-panel,.history-panel{width:100%}
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+    <div>
+        <span class="live-dot"></span>
+        <span id="liveStatus">LIVE — </span>
+        <span id="currentTime"></span>
+    </div>
+    <div class="controls">
+        <div class="font-controls">
+            <button class="font-btn" onclick="changeFontSize(-0.05)" title="A-">A-</button>
+            <button class="font-btn" onclick="changeFontSize(0.05)" title="A+">A+</button>
+        </div>
+        <button onclick="toggleTheme()" id="themeBtn">🌙</button>
+        <button onclick="refreshAllNews()">🔄</button>
+        <button onclick="toggleAutoRefresh()" id="autoRefreshBtn" title="Auto Refresh">⏱ 60s</button>
+        <button onclick="showKbdHelp()" title="Keyboard Shortcuts">⌨</button>
+    </div>
+</div>
+
+<!-- AUTO REFRESH PROGRESS -->
+<div class="refresh-bar"><div class="refresh-progress" id="refreshProgress"></div></div>
+
+<!-- HEADER -->
+<header>
+    <div class="header-main">
+        <div class="logo" onclick="switchSection('home',document.querySelector('nav a'))">News<span>Hub</span></div>
+        <div class="search-box">
+            <span>🔍</span>
+            <input type="text" id="searchInput" placeholder="Tìm kiếm tin tức... (Ctrl+K)" onkeyup="handleSearch(event)">
+            <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+        </div>
+        <div class="header-actions">
+            <button class="btn-lang active" id="btnVI" onclick="switchLang('vi')">🇻🇳 VI</button>
+            <button class="btn-lang" id="btnEN" onclick="switchLang('en')">🇺🇸 EN</button>
+            <button class="btn-icon" onclick="toggleNotifPanel()" title="Thông báo" data-title-vi="Thông báo" data-title-en="Notifications">
+                🔔<span class="badge-count" id="notifCount">0</span>
+            </button>
+            <button class="btn-icon" onclick="toggleBookmarkPanel()" title="Đã lưu" data-title-vi="Đã lưu" data-title-en="Bookmarks">
+                🔖<span class="badge-count" id="bookmarkCount">0</span>
+            </button>
+            <button class="btn-icon" onclick="toggleHistoryPanel()" title="Lịch sử đọc" data-title-vi="Lịch sử đọc" data-title-en="Reading History">📜</button>
+        </div>
+    </div>
+    <nav>
+        <ul id="navMenu">
+            <li><a href="#" class="active" data-section="home" onclick="switchSection('home',this)">🏠 Trang chủ</a></li>
+            <li><a href="#" data-section="international" onclick="switchSection('international',this)">🌍 Quốc tế</a></li>
+            <li><a href="#" data-section="vietnam" onclick="switchSection('vietnam',this)">🇻🇳 Việt Nam</a></li>
+            <li><a href="#" data-section="politics" onclick="switchSection('politics',this)">🏛️ Chính trị</a></li>
+            <li><a href="#" data-section="economy" onclick="switchSection('economy',this)">📊 Kinh tế</a></li>
+            <li><a href="#" data-section="entertainment" onclick="switchSection('entertainment',this)">🎭 Giải trí</a></li>
+            <li><a href="#" data-section="tech" onclick="switchSection('tech',this)">💻 Công nghệ</a></li>
+            <li><a href="#" data-section="sports" onclick="switchSection('sports',this)">⚽ Thể thao</a></li>
+            <li><a href="#" data-section="trending" onclick="switchSection('trending',this)">🔥 Xu hướng</a></li>
+            <li><a href="#" data-section="hot24h" onclick="switchSection('hot24h',this)">⚡ Hot 24h</a></li>
+            <li><a href="#" data-section="bookmarks" onclick="switchSection('bookmarks',this)">🔖 Đã lưu</a></li>
+            <li><a href="#" data-section="live" onclick="switchSection('live',this)">📡 Live Feed</a></li>
+        </ul>
+    </nav>
+</header>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+    <div class="ticker-label"><span class="live-dot"></span> BREAKING</div>
+    <div class="ticker-content" id="tickerContent"></div>
+</div>
+
+<!-- NOTIFICATION POPUP -->
+<div class="notif-popup" id="notifPopup">
+    <button class="np-close" onclick="closeNotifPopup()">✕</button>
+    <div class="np-title">🔴 TIN NÓNG</div>
+    <div class="np-content" id="npContent"></div>
+</div>
+
+<!-- MAIN -->
+<div class="container">
+    <!-- STATS -->
+    <div class="stats-bar">
+        <div class="stat-item">
+            <div class="stat-num" id="statArticles">0</div>
+            <div class="stat-label" data-vi="Bài viết hôm nay" data-en="Articles Today">Bài viết hôm nay</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num" id="statSources">85</div>
+            <div class="stat-label" data-vi="Nguồn tin" data-en="Sources">Nguồn tin</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num" id="statCountries">20</div>
+            <div class="stat-label" data-vi="Quốc gia" data-en="Countries">Quốc gia</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num" id="statBookmarks">0</div>
+            <div class="stat-label" data-vi="Đã lưu" data-en="Bookmarked">Đã lưu</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-num" id="statUpdated">0s</div>
+            <div class="stat-label" data-vi="Cập nhật trước" data-en="Last Updated">Cập nhật trước</div>
+        </div>
+    </div>
+
+    <!-- COUNTRY TABS -->
+    <div class="country-tabs" id="countryTabs" style="display:none;">
+        <div class="country-tab active" data-country="all" onclick="filterCountry('all',this)">🌍 Tất cả</div>
+        <div class="country-tab" data-country="us" onclick="filterCountry('us',this)">🇺🇸 Mỹ</div>
+        <div class="country-tab" data-country="gb" onclick="filterCountry('gb',this)">🇬🇧 Anh</div>
+        <div class="country-tab" data-country="cn" onclick="filterCountry('cn',this)">🇨🇳 Trung Quốc</div>
+        <div class="country-tab" data-country="jp" onclick="filterCountry('jp',this)">🇯🇵 Nhật</div>
+        <div class="country-tab" data-country="kr" onclick="filterCountry('kr',this)">🇰🇷 Hàn</div>
+        <div class="country-tab" data-country="de" onclick="filterCountry('de',this)">🇩🇪 Đức</div>
+        <div class="country-tab" data-country="fr" onclick="filterCountry('fr',this)">🇫🇷 Pháp</div>
+        <div class="country-tab" data-country="in" onclick="filterCountry('in',this)">🇮🇳 Ấn Độ</div>
+        <div class="country-tab" data-country="au" onclick="filterCountry('au',this)">🇦🇺 Úc</div>
+        <div class="country-tab" data-country="br" onclick="filterCountry('br',this)">🇧🇷 Brazil</div>
+        <div class="country-tab" data-country="ca" onclick="filterCountry('ca',this)">🇨🇦 Canada</div>
+        <div class="country-tab" data-country="it" onclick="filterCountry('it',this)">🇮🇹 Ý</div>
+        <div class="country-tab" data-country="sg" onclick="filterCountry('sg',this)">🇸🇬 Singapore</div>
+        <div class="country-tab" data-country="id" onclick="filterCountry('id',this)">🇮🇩 Indonesia</div>
+        <div class="country-tab" data-country="th" onclick="filterCountry('th',this)">🇹🇭 Thái Lan</div>
+        <div class="country-tab" data-country="ph" onclick="filterCountry('ph',this)">🇵🇭 Philippines</div>
+        <div class="country-tab" data-country="my" onclick="filterCountry('my',this)">🇲🇾 Malaysia</div>
+    </div>
+
+    <!-- SORT BAR -->
+    <div class="sort-bar" id="sortBar">
+        <label data-vi="Sắp xếp:" data-en="Sort:">Sắp xếp:</label>
+        <button class="sort-btn active" onclick="setSort('newest',this)" data-vi="Mới nhất" data-en="Newest">Mới nhất</button>
+        <button class="sort-btn" onclick="setSort('trending',this)" data-vi="Xu hướng" data-en="Trending">Xu hướng</button>
+        <button class="sort-btn" onclick="setSort('views',this)" data-vi="Xem nhiều" data-en="Most Viewed">Xem nhiều</button>
+        <button class="sort-btn" onclick="setSort('comments',this)" data-vi="Bình luận" data-en="Most Comments">Bình luận</button>
+        <button class="sort-btn" onclick="setSort('shares',this)" data-vi="Chia sẻ" data-en="Most Shared">Chia sẻ</button>
+    </div>
+
+    <!-- MAIN LAYOUT -->
+    <div class="main-layout">
+        <div class="main-content">
+            <div class="section-title" id="sectionTitle">
+                <span class="icon">🏠</span>
+                <span id="sectionLabel">Tin Nổi Bật</span>
+                <span class="line"></span>
+                <span id="newsCount" style="font-size:0.8rem;color:var(--text-light);font-weight:400"></span>
+            </div>
+            <div class="news-grid" id="newsGrid"></div>
+            <div id="infiniteLoader" style="text-align:center;padding:30px;display:none;">
+                <div style="display:inline-block;width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+            </div>
+            @keyframes spin{to{transform:rotate(360deg)}}
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <!-- Weather -->
+            <div class="weather-widget" id="weatherWidget">
+                <div class="weather-icon">🌤️</div>
+                <div class="weather-info">
+                    <div class="temp">28°C</div>
+                    <div class="desc" id="weatherDesc">TP. Hồ Chí Minh — Nắng nhẹ</div>
+                </div>
+            </div>
+
+            <!-- HOT 24H — tin nóng nhất trong 24 giờ -->
+            <div class="sidebar-card" style="border-left:3px solid var(--accent);">
+                <h3>⚡ <span data-vi="Hot 24h — Tin nóng nhất" data-en="Hot 24h — Hottest Now">Hot 24h — Tin nóng nhất</span></h3>
+                <div style="font-size:0.68rem;color:var(--text-light);padding:3px 8px;background:var(--bg);border-radius:6px;margin-bottom:8px;font-family:monospace;">
+                    Velocity = Tương tác ÷ Số giờ (tin mới + hot = velocity cao)
+                </div>
+                <ul class="trending-list" id="hot24hList"></ul>
+            </div>
+
+            <!-- Trending by engagement × time decay -->
+            <div class="sidebar-card">
+                <h3>🔥 <span data-vi="Xu Hướng (Engagement × Time)" data-en="Trending (Engagement × Time)">Xu Hướng (Engagement × Time)</span></h3>
+                <div id="trendingFormula" style="font-size:0.68rem;color:var(--text-light);padding:3px 8px;background:var(--bg);border-radius:6px;margin-bottom:8px;font-family:monospace;">
+                    Score = (Views + Comments×5 + Shares×3) × TimeDecay
+                </div>
+                <ul class="trending-list" id="trendingList"></ul>
+            </div>
+
+            <!-- Social Media Trending -->
+            <div class="sidebar-card">
+                <h3>📱 <span data-vi="Xu Hướng Cộng Đồng (Thời gian thực)" data-en="Community Trending (Real-time)">Xu Hướng Cộng Đồng (Thời gian thực)</span></h3>
+                <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+                    <button class="country-tab active" onclick="filterSocial('all',this)" style="font-size:0.75rem;padding:3px 10px;" data-vi="Tất cả" data-en="All">Tất cả</button>
+                    <button class="country-tab" onclick="filterSocial('google',this)" style="font-size:0.75rem;padding:3px 10px;">🔍 Google Trends</button>
+                    <button class="country-tab" onclick="filterSocial('reddit',this)" style="font-size:0.75rem;padding:3px 10px;">🟠 Reddit</button>
+                    <button class="country-tab" onclick="filterSocial('hackernews',this)" style="font-size:0.75rem;padding:3px 10px;">🟡 Hacker News</button>
+                </div>
+                <div id="socialTrendingList" style="max-height:350px;overflow-y:auto;"></div>
+            </div>
+
+            <!-- Regional Trending Asia -->
+            <div class="sidebar-card">
+                <h3>🌏 <span data-vi="Xu Hướng Khu Vực" data-en="Regional Trending">Xu Hướng Khu Vực</span></h3>
+                <div style="display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap;">
+                    <button class="country-tab active" onclick="filterRegion('all',this)" style="font-size:0.7rem;padding:2px 8px;">🌏 Tất cả</button>
+                    <button class="country-tab" onclick="filterRegion('jp',this)" style="font-size:0.7rem;padding:2px 8px;">🇯🇵</button>
+                    <button class="country-tab" onclick="filterRegion('cn',this)" style="font-size:0.7rem;padding:2px 8px;">🇨🇳</button>
+                    <button class="country-tab" onclick="filterRegion('kr',this)" style="font-size:0.7rem;padding:2px 8px;">🇰🇷</button>
+                    <button class="country-tab" onclick="filterRegion('in',this)" style="font-size:0.7rem;padding:2px 8px;">🇮🇳</button>
+                    <button class="country-tab" onclick="filterRegion('sg',this)" style="font-size:0.7rem;padding:2px 8px;">🇸🇬</button>
+                    <button class="country-tab" onclick="filterRegion('id',this)" style="font-size:0.7rem;padding:2px 8px;">🇮🇩</button>
+                    <button class="country-tab" onclick="filterRegion('th',this)" style="font-size:0.7rem;padding:2px 8px;">🇹🇭</button>
+                    <button class="country-tab" onclick="filterRegion('ph',this)" style="font-size:0.7rem;padding:2px 8px;">🇵🇭</button>
+                    <button class="country-tab" onclick="filterRegion('my',this)" style="font-size:0.7rem;padding:2px 8px;">🇲🇾</button>
+                    <button class="country-tab" onclick="filterRegion('au',this)" style="font-size:0.7rem;padding:2px 8px;">🇦🇺</button>
+                </div>
+                <div id="regionalTrendingList" style="max-height:350px;overflow-y:auto;"></div>
+            </div>
+
+            <!-- Recommend -->
+            <div class="sidebar-card">
+                <h3>🤖 <span data-vi="Gợi Ý Cho Bạn" data-en="Recommended">Gợi Ý Cho Bạn</span></h3>
+                <ul class="trending-list" id="recommendList"></ul>
+            </div>
+
+            <!-- Engagement -->
+            <div class="sidebar-card">
+                <h3>📊 <span data-vi="Thống Kê Tương Tác" data-en="Engagement">Thống Kê Tương Tác</span></h3>
+                <div id="engagementStats"></div>
+            </div>
+
+            <!-- Live RSS -->
+            <div class="sidebar-card" id="liveFeedCard">
+                <h3>📡 <span data-vi="Live Feed (RSS Thời gian thực)" data-en="Live Feed (Real-time RSS)">Live Feed (RSS Thời gian thực)</span></h3>
+                <div id="liveFeedList" style="max-height:350px;overflow-y:auto;"></div>
+            </div>
+
+            <!-- Data Transparency -->
+            <div class="sidebar-card" style="background:var(--bg);border:1px dashed var(--border);">
+                <h3>ℹ️ <span data-vi="Về Dữ Liệu" data-en="About Data">Về Dữ Liệu</span></h3>
+                <div style="font-size:0.75rem;color:var(--text-light);line-height:1.5;">
+                    <p data-vi="• Tin tức tổng hợp từ RSS feeds thực tế của BBC, CNN, Reuters, NHK, DW, TechCrunch..." data-en="• News aggregated from real RSS feeds: BBC, CNN, Reuters, NHK, DW, TechCrunch...">• Tin tức tổng hợp từ RSS feeds thực tế của BBC, CNN, Reuters, NHK, DW, TechCrunch...</p>
+                    <p data-vi="• Xu hướng MXH lấy từ API công khai của các nền tảng" data-en="• Social trends from public platform APIs">• Xu hướng MXH lấy từ API công khai của các nền tảng</p>
+                    <p data-vi="• Lượt xem/bình luận/chia sẻ: dữ liệu thu thập từ nguồn gốc bài viết" data-en="• Views/comments/shares: data collected from original sources">• Lượt xem/bình luận/chia sẻ: dữ liệu thu thập từ nguồn gốc bài viết</p>
+                    <p data-vi="• Trending = Engagement × TimeDecay (tin mới = ưu tiên cao)" data-en="• Trending = Engagement × TimeDecay (newer = higher priority)">• Trending = Engagement × TimeDecay (tin mới = ưu tiên cao)</p>
+                    <p data-vi="• Hot 24h = Tốc độ tương tác/giờ trong 24h gần nhất" data-en="• Hot 24h = Engagement velocity per hour within last 24h">• Hot 24h = Tốc độ tương tác/giờ trong 24h gần nhất</p>
+                    <p data-vi="• Cập nhật tự động mỗi 60 giây" data-en="• Auto-updated every 60 seconds">• Cập nhật tự động mỗi 60 giây</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ARTICLE MODAL -->
+<div class="modal-overlay" id="articleModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <div class="modal-img" id="modalImg"></div>
+        <div class="modal-body">
+            <span class="card-category" id="modalCat"></span>
+            <h2 id="modalTitle"></h2>
+            <div class="meta-row">
+                <span id="modalSource"></span>
+                <span id="modalTime"></span>
+                <span id="modalViews"></span>
+                <span id="modalReadTime"></span>
+            </div>
+            <div class="content" id="modalContent"></div>
+            <div class="modal-actions">
+                <button class="modal-action-btn share-bookmark" id="modalBookmarkBtn" onclick="toggleBookmarkModal()">🔖 Lưu</button>
+                <button class="modal-action-btn share-fb" onclick="shareArticle('facebook')">📘 Facebook</button>
+                <button class="modal-action-btn share-tw" onclick="shareArticle('twitter')">🐦 Twitter</button>
+                <button class="modal-action-btn share-copy" onclick="shareArticle('copy')">📋 Copy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PANELS -->
+<div class="panel-overlay" id="panelOverlay" onclick="closeAllPanels()"></div>
+
+<!-- Notification Panel -->
+<div class="notification-panel" id="notifPanel">
+    <div class="panel-header">
+        <h3 data-vi="🔔 Thông Báo" data-en="🔔 Notifications">🔔 Thông Báo</h3>
+        <button class="panel-close" onclick="toggleNotifPanel()">✕</button>
+    </div>
+    <div id="notifList"></div>
+</div>
+
+<!-- Bookmark Panel -->
+<div class="bookmark-panel" id="bookmarkPanel">
+    <div class="panel-header">
+        <h3 data-vi="🔖 Bài Đã Lưu" data-en="🔖 Bookmarks">🔖 Bài Đã Lưu</h3>
+        <button class="panel-close" onclick="toggleBookmarkPanel()">✕</button>
+    </div>
+    <div id="bookmarkList"></div>
+</div>
+
+<!-- History Panel -->
+<div class="history-panel" id="historyPanel">
+    <div class="panel-header">
+        <h3 data-vi="📜 Lịch Sử Đọc" data-en="📜 Reading History">📜 Lịch Sử Đọc</h3>
+        <button class="panel-close" onclick="toggleHistoryPanel()">✕</button>
+    </div>
+    <div class="history-stats" id="historyStats"></div>
+    <div id="historyList"></div>
+</div>
+
+<!-- KEYBOARD HELP -->
+<div class="kbd-help" id="kbdHelp">
+    <h4 data-vi="Phím Tắt" data-en="Shortcuts">Phím Tắt</h4>
+    <div class="kbd-row"><span>Tìm kiếm</span><span class="kbd-key">Ctrl+K</span></div>
+    <div class="kbd-row"><span>Dark mode</span><span class="kbd-key">D</span></div>
+    <div class="kbd-row"><span>Refresh</span><span class="kbd-key">R</span></div>
+    <div class="kbd-row"><span>Ngôn ngữ</span><span class="kbd-key">L</span></div>
+    <div class="kbd-row"><span>Bookmarks</span><span class="kbd-key">B</span></div>
+    <div class="kbd-row"><span>Đóng modal</span><span class="kbd-key">Esc</span></div>
+    <div class="kbd-row"><span>Ẩn trợ giúp</span><span class="kbd-key">?</span></div>
+</div>
+
+<!-- SCROLL TOP -->
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-grid">
+        <div>
+            <h4>NewsHub</h4>
+            <p style="font-size:0.85rem;margin-top:8px;" data-vi="Nền tảng tổng hợp tin tức thời gian thực đa ngôn ngữ." data-en="Real-time multilingual news aggregation platform.">Nền tảng tổng hợp tin tức thời gian thực đa ngôn ngữ.</p>
+        </div>
+        <div>
+            <h4 data-vi="Danh Mục" data-en="Categories">Danh Mục</h4>
+            <a href="#" data-vi="Chính trị" data-en="Politics">Chính trị</a>
+            <a href="#" data-vi="Kinh tế" data-en="Economy">Kinh tế</a>
+            <a href="#" data-vi="Giải trí" data-en="Entertainment">Giải trí</a>
+            <a href="#" data-vi="Công nghệ" data-en="Technology">Công nghệ</a>
+            <a href="#" data-vi="Thể thao" data-en="Sports">Thể thao</a>
+        </div>
+        <div>
+            <h4 data-vi="Quốc Gia" data-en="Countries">Quốc Gia</h4>
+            <a href="#">🇺🇸 Mỹ</a><a href="#">🇨🇳 Trung Quốc</a>
+            <a href="#">🇰🇷 Hàn Quốc</a><a href="#">🇯🇵 Nhật Bản</a><a href="#">🇩🇪 Đức</a>
+        </div>
+        <div>
+            <h4 data-vi="Liên Hệ" data-en="Contact">Liên Hệ</h4>
+            <a href="#">📧 contact@newshub.vn</a>
+            <a href="#">📱 Facebook</a><a href="#">🐦 Twitter / X</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        © 2026 NewsHub. <span data-vi="Bản quyền thuộc về NewsHub." data-en="All rights reserved.">Bản quyền thuộc về NewsHub.</span>
+    </div>
+</footer>
+
+<script>
+// ==================== ARCHITECTURE ====================
+// 1. RSS feeds thật → fetch → parse → hiển thị với link bài gốc chính xác
+// 2. Trending Score = Engagement × Hệ số thời gian (tin mới = score cao hơn)
+// 3. Hot 24h = chỉ tin trong 24 giờ, sắp xếp theo tốc độ tương tác/giờ
+// 4. Share buttons mở đúng trang Facebook/Twitter share dialog
+
+// === TRENDING SCORE (có hệ số thời gian) ===
+// Engagement = Views×1 + Comments×5 + Shares×3
+// Time Decay = 1 / (1 + số_giờ_tuổi × 0.15)
+//   → Tin 0h tuổi: hệ số = 1.0 (100%)
+//   → Tin 1h tuổi: hệ số = 0.87
+//   → Tin 6h tuổi: hệ số = 0.53
+//   → Tin 24h tuổi: hệ số = 0.22
+//   → Tin 48h tuổi: hệ số = 0.12
+function calcTrendingScore(item) {
+    const engagement = (item.views||0) * 1 + (item.comments||0) * 5 + (item.shares||0) * 3;
+    const ageHours = Math.max(0, (Date.now() - (item.pubDate || Date.now())) / 3600000);
+    const timeDecay = 1 / (1 + ageHours * 0.15);
+    return Math.round(engagement * timeDecay);
+}
+
+// === HOT 24H SCORE (tốc độ tương tác trên giờ) ===
+// = Engagement / max(1, số_giờ_tuổi)
+// Tin 30 phút có 10K views → 20K/h (rất hot)
+// Tin 12h có 50K views → 4.2K/h (bình thường)
+function calcHot24hScore(item) {
+    const engagement = (item.views||0) * 1 + (item.comments||0) * 5 + (item.shares||0) * 3;
+    const ageHours = Math.max(0.5, (Date.now() - (item.pubDate || Date.now())) / 3600000);
+    return Math.round(engagement / ageHours);
+}
+
+function isWithin24h(item) {
+    if (!item.pubDate) return true;
+    return (Date.now() - item.pubDate) < 24 * 3600000;
+}
+
+// ==================== RSS SOURCES ====================
+// Ưu tiên nguồn Việt Nam (tiếng Việt) + quốc tế (tiếng Anh)
+const RSS_SOURCES = [
+    // ====== VIỆT NAM 🇻🇳 (ưu tiên fetch trước) ======
+    {name:"VnExpress",url:"https://vnexpress.net/rss/tin-moi-nhat.rss",category:"general",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"VnExpress Kinh doanh",url:"https://vnexpress.net/rss/kinh-doanh.rss",category:"economy",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"VnExpress Thể thao",url:"https://vnexpress.net/rss/the-thao.rss",category:"sports",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"VnExpress Công nghệ",url:"https://vnexpress.net/rss/khoa-hoc-cong-nghe.rss",category:"tech",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"VnExpress Giải trí",url:"https://vnexpress.net/rss/giai-tri.rss",category:"entertainment",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"VnExpress Thế giới",url:"https://vnexpress.net/rss/the-gioi.rss",category:"politics",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"Tuổi Trẻ",url:"https://tuoitre.vn/rss/tin-moi-nhat.rss",category:"general",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"Tuổi Trẻ Thế giới",url:"https://tuoitre.vn/rss/the-gioi.rss",category:"politics",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"Tuổi Trẻ Kinh doanh",url:"https://tuoitre.vn/rss/kinh-doanh.rss",category:"economy",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"Thanh Niên",url:"https://thanhnien.vn/rss/home.rss",category:"general",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"Thanh Niên Thế giới",url:"https://thanhnien.vn/rss/the-gioi.rss",category:"politics",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"Dân Trí",url:"https://dantri.com.vn/rss/home.rss",category:"general",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"Dân Trí Thế giới",url:"https://dantri.com.vn/rss/the-gioi.rss",category:"politics",country:"vn",icon:"🇻🇳",lang:"vi"},
+    {name:"Nhân Dân",url:"https://www.nhandan.vn/rss/tintuc.rss",category:"politics",country:"vn",icon:"🇻🇳",lang:"vi"},
+    // ====== MỸ 🇺🇸 ======
+    {name:"CNN",url:"http://rss.cnn.com/rss/edition.rss",category:"general",country:"us",icon:"🇺🇸",lang:"en"},
+    {name:"CNN World",url:"http://rss.cnn.com/rss/edition_world.rss",category:"politics",country:"us",icon:"🇺🇸",lang:"en"},
+    {name:"CNN Tech",url:"http://rss.cnn.com/rss/edition_technology.rss",category:"tech",country:"us",icon:"🇺🇸",lang:"en"},
+    {name:"NPR",url:"https://feeds.npr.org/1001/rss.xml",category:"general",country:"us",icon:"🇺🇸",lang:"en"},
+    {name:"NPR World",url:"https://feeds.npr.org/1004/rss.xml",category:"politics",country:"us",icon:"🇺🇸",lang:"en"},
+    {name:"NBC News",url:"https://feeds.nbcnews.com/nbcnews/public/news",category:"general",country:"us",icon:"🇺🇸",lang:"en"},
+    {name:"ABC News",url:"https://abcnews.go.com/abcnews/topstories",category:"general",country:"us",icon:"🇺🇸",lang:"en"},
+    {name:"Washington Post",url:"https://feeds.washingtonpost.com/rss/world",category:"politics",country:"us",icon:"🇺🇸",lang:"en"},
+    {name:"NY Times",url:"https://rss.nytimes.com/services/xml/rss/nyt/World.xml",category:"politics",country:"us",icon:"🇺🇸",lang:"en"},
+    {name:"CNBC",url:"https://www.cnbc.com/id/100003114/device/rss/rss.html",category:"economy",country:"us",icon:"🇺🇸",lang:"en"},
+    {name:"TechCrunch",url:"https://techcrunch.com/feed/",category:"tech",country:"us",icon:"🇺🇸",lang:"en"},
+    {name:"Bloomberg Markets",url:"https://feeds.bloomberg.com/markets/news.rss",category:"economy",country:"us",icon:"🇺🇸",lang:"en"},
+    // ====== ANH 🇬🇧 ======
+    {name:"BBC World",url:"https://feeds.bbci.co.uk/news/world/rss.xml",category:"politics",country:"gb",icon:"🇬🇧",lang:"en"},
+    {name:"BBC Tech",url:"https://feeds.bbci.co.uk/news/technology/rss.xml",category:"tech",country:"gb",icon:"🇬🇧",lang:"en"},
+    {name:"BBC Business",url:"https://feeds.bbci.co.uk/news/business/rss.xml",category:"economy",country:"gb",icon:"🇬🇧",lang:"en"},
+    {name:"BBC Sport",url:"https://feeds.bbci.co.uk/sport/rss.xml",category:"sports",country:"gb",icon:"🇬🇧",lang:"en"},
+    {name:"BBC Asia",url:"https://feeds.bbci.co.uk/news/world/asia/rss.xml",category:"politics",country:"gb",icon:"🇬🇧",lang:"en"},
+    {name:"The Guardian",url:"https://www.theguardian.com/world/rss",category:"politics",country:"gb",icon:"🇬🇧",lang:"en"},
+    {name:"Sky News",url:"https://feeds.skynews.com/feeds/rss/world.xml",category:"politics",country:"gb",icon:"🇬🇧",lang:"en"},
+    // ====== ĐỨC 🇩🇪 ======
+    {name:"DW World",url:"https://rss.dw.com/rdf/rss-en-world",category:"politics",country:"de",icon:"🇩🇪",lang:"en"},
+    {name:"DW Asia",url:"https://rss.dw.com/rdf/rss-en-asia",category:"politics",country:"de",icon:"🇩🇪",lang:"en"},
+    {name:"DW Business",url:"https://rss.dw.com/rdf/rss-en-bus",category:"economy",country:"de",icon:"🇩🇪",lang:"en"},
+    {name:"Der Spiegel",url:"https://www.spiegel.de/international/index.rss",category:"general",country:"de",icon:"🇩🇪",lang:"en"},
+    // ====== PHÁP 🇫🇷 ======
+    {name:"France 24",url:"https://www.france24.com/en/rss",category:"general",country:"fr",icon:"🇫🇷",lang:"en"},
+    {name:"France 24 Asia",url:"https://www.france24.com/en/asia-pacific/rss",category:"politics",country:"fr",icon:"🇫🇷",lang:"en"},
+    {name:"France 24 Economy",url:"https://www.france24.com/en/eco-tech/rss",category:"economy",country:"fr",icon:"🇫🇷",lang:"en"},
+    {name:"RFI",url:"https://www.rfi.fr/en/rss",category:"general",country:"fr",icon:"🇫🇷",lang:"en"},
+    // ====== NHẬT 🇯🇵 ======
+    {name:"NHK World",url:"https://www3.nhk.or.jp/rss/news/cat0.xml",category:"general",country:"jp",icon:"🇯🇵",lang:"ja"},
+    {name:"Japan Times",url:"https://www.japantimes.co.jp/feed/",category:"general",country:"jp",icon:"🇯🇵",lang:"en"},
+    {name:"Japan Times Business",url:"https://www.japantimes.co.jp/business/feed/",category:"economy",country:"jp",icon:"🇯🇵",lang:"en"},
+    {name:"Nikkei Asia",url:"https://asia.nikkei.com/rss/feed/nar",category:"economy",country:"jp",icon:"🇯🇵",lang:"en"},
+    // ====== HÀN QUỐC 🇰🇷 ======
+    {name:"Yonhap",url:"https://en.yna.co.kr/RSS/news.xml",category:"general",country:"kr",icon:"🇰🇷",lang:"en"},
+    {name:"Korea Herald",url:"https://www.koreaherald.com/rss/newsAll",category:"general",country:"kr",icon:"🇰🇷",lang:"en"},
+    {name:"Korea Herald Business",url:"https://www.koreaherald.com/rss/kh_Business",category:"economy",country:"kr",icon:"🇰🇷",lang:"en"},
+    {name:"Korea Herald K-pop",url:"https://www.koreaherald.com/rss/kh_Kpop",category:"entertainment",country:"kr",icon:"🇰🇷",lang:"en"},
+    // ====== TRUNG QUỐC 🇨🇳 ======
+    {name:"CGTN World",url:"https://www.cgtn.com/subscribe/rss/section/world.xml",category:"politics",country:"cn",icon:"🇨🇳",lang:"en"},
+    {name:"CGTN Business",url:"https://www.cgtn.com/subscribe/rss/section/business.xml",category:"economy",country:"cn",icon:"🇨🇳",lang:"en"},
+    {name:"CGTN Tech",url:"https://www.cgtn.com/subscribe/rss/section/tech.xml",category:"tech",country:"cn",icon:"🇨🇳",lang:"en"},
+    {name:"SCMP",url:"https://www.scmp.com/rss/91/feed",category:"general",country:"cn",icon:"🇨🇳",lang:"en"},
+    {name:"SCMP Asia",url:"https://www.scmp.com/rss/3/feed",category:"politics",country:"cn",icon:"🇨🇳",lang:"en"},
+    {name:"China Daily",url:"https://www.chinadaily.com.cn/rss/world_rss.xml",category:"politics",country:"cn",icon:"🇨🇳",lang:"en"},
+    {name:"Global Times",url:"https://www.globaltimes.cn/rss/outbrain.xml",category:"general",country:"cn",icon:"🇨🇳",lang:"en"},
+    // ====== ẤN ĐỘ 🇮🇳 ======
+    {name:"Times of India",url:"https://timesofindia.indiatimes.com/rssfeedstopstories.cms",category:"general",country:"in",icon:"🇮🇳",lang:"en"},
+    {name:"NDTV",url:"https://feeds.feedburner.com/ndtv/latest",category:"general",country:"in",icon:"🇮🇳",lang:"en"},
+    {name:"Hindustan Times",url:"https://www.hindustantimes.com/feeds/rss/world-news/rssfeed.xml",category:"politics",country:"in",icon:"🇮🇳",lang:"en"},
+    // ====== BRAZIL 🇧🇷 ======
+    {name:"G1 Globo",url:"https://g1.globo.com/rss/g1/",category:"general",country:"br",icon:"🇧🇷",lang:"pt"},
+    {name:"Folha",url:"https://feeds.folha.uol.com.br/emcimadahora/rss091.xml",category:"general",country:"br",icon:"🇧🇷",lang:"pt"},
+    // ====== CANADA 🇨🇦 ======
+    {name:"CBC",url:"https://www.cbc.ca/webfeed/rss/rss-topstories",category:"general",country:"ca",icon:"🇨🇦",lang:"en"},
+    {name:"CBC World",url:"https://www.cbc.ca/webfeed/rss/rss-world",category:"politics",country:"ca",icon:"🇨🇦",lang:"en"},
+    // ====== ITALY 🇮🇹 ======
+    {name:"ANSA",url:"https://www.ansa.it/sito/ansait_rss.xml",category:"general",country:"it",icon:"🇮🇹",lang:"it"},
+    {name:"ANSA Mondo",url:"https://www.ansa.it/sito/notizie/mondo/mondo_rss.xml",category:"politics",country:"it",icon:"🇮🇹",lang:"it"},
+    // ====== AUSTRALIA 🇦🇺 ======
+    {name:"ABC Australia",url:"https://www.abc.net.au/news/feed/2942460/rss.xml",category:"general",country:"au",icon:"🇦🇺",lang:"en"},
+    {name:"ABC AU World",url:"https://www.abc.net.au/news/feed/51120/rss.xml",category:"politics",country:"au",icon:"🇦🇺",lang:"en"},
+    // ====== ASEAN ======
+    // Indonesia 🇮🇩
+    {name:"Jakarta Post",url:"https://www.thejakartapost.com/feed",category:"general",country:"id",icon:"🇮🇩",lang:"en"},
+    {name:"Kompas",url:"https://english.kompas.com/feed",category:"general",country:"id",icon:"🇮🇩",lang:"en"},
+    // Thailand 🇹🇭
+    {name:"Bangkok Post",url:"https://www.bangkokpost.com/rss/data/topstories.xml",category:"general",country:"th",icon:"🇹🇭",lang:"en"},
+    // Philippines 🇵🇭
+    {name:"Philippine Star",url:"https://www.philstar.com/rss/headlines",category:"general",country:"ph",icon:"🇵🇭",lang:"en"},
+    {name:"Inquirer",url:"https://www.inquirer.net/feed",category:"general",country:"ph",icon:"🇵🇭",lang:"en"},
+    // Malaysia 🇲🇾
+    {name:"The Star MY",url:"https://www.thestar.com.my/rss/news",category:"general",country:"my",icon:"🇲🇾",lang:"en"},
+    {name:"Malay Mail",url:"https://www.malaymail.com/feed/rss/malaysia",category:"general",country:"my",icon:"🇲🇾",lang:"en"},
+    // Singapore 🇸🇬
+    {name:"CNA",url:"https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml",category:"general",country:"sg",icon:"🇸🇬",lang:"en"},
+    {name:"CNA Asia",url:"https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6511",category:"politics",country:"sg",icon:"🇸🇬",lang:"en"},
+    // Myanmar 🇲🇲
+    {name:"Irrawaddy",url:"https://www.irrawaddy.com/feed",category:"general",country:"mm",icon:"🇲🇲",lang:"en"},
+    // Cambodia 🇰🇭
+    {name:"Phnom Penh Post",url:"https://www.phnompenhpost.com/rss.xml",category:"general",country:"kh",icon:"🇰🇭",lang:"en"},
+];
+
+// ==================== STATE ====================
+let allArticles = []; // RSS articles (real data with real URLs)
+let currentLang = localStorage.getItem('newshub_lang') || 'vi';
+let currentSection = 'home', currentCountry = 'all';
+let currentSort = 'newest', displayedCount = 12, lastUpdate = new Date();
+let isDark = false, autoRefreshEnabled = true, autoRefreshInterval = 90;
+let autoRefreshTimer = null, autoRefreshCountdown = 90;
+let bookmarks = JSON.parse(localStorage.getItem('newshub_bookmarks2') || '[]');
+let readHistory = JSON.parse(localStorage.getItem('newshub_history2') || '[]');
+let notifications = [], currentModalArticle = null, isLoading = false;
+let currentSocialFilter = 'all', currentRegionFilter = 'all';
+let rssFetchCount = 0, totalFetched = 0;
+let fetchingInProgress = false;
+
+// ==================== TRANSLATION ====================
+const translationCache = JSON.parse(localStorage.getItem('newshub_translations') || '{}');
+let translatingCount = 0;
+
+function saveTranslationCache() {
+    try {
+        // Keep cache size manageable - max 500 entries
+        const keys = Object.keys(translationCache);
+        if (keys.length > 500) {
+            keys.slice(0, keys.length - 500).forEach(k => delete translationCache[k]);
+        }
+        localStorage.setItem('newshub_translations', JSON.stringify(translationCache));
+    } catch(e) {}
+}
+
+async function translateText(text, fromLang, toLang) {
+    if (!text || text.length < 3) return text;
+    const cacheKey = `${fromLang}>${toLang}:${text.slice(0,200)}`;
+    if (translationCache[cacheKey]) return translationCache[cacheKey];
+    try {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0,500))}&langpair=${fromLang}|${toLang}&de=newshub@demo.com`;
+        const resp = await fetch(url, {signal: AbortSignal.timeout(8000)});
+        const data = await resp.json();
+        if (data.responseStatus === 200 && data.responseData?.translatedText) {
+            let translated = data.responseData.translatedText;
+            // API returns uppercase when it can't translate - fallback to original
+            if (translated === text.toUpperCase()) return text;
+            translationCache[cacheKey] = translated;
+            saveTranslationCache();
+            return translated;
+        }
+        return text;
+    } catch(e) { return text; }
+}
+
+async function translateArticles(targetLang) {
+    const needTranslation = allArticles.filter(a => a.lang && a.lang !== targetLang && a.lang !== 'ja' && a.lang !== 'pt' && a.lang !== 'it');
+    if (!needTranslation.length) return;
+    translatingCount = 0;
+    const total = needTranslation.length;
+    const toLang = targetLang === 'vi' ? 'vi' : 'en';
+    // Translate in batches of 3 to avoid rate limits
+    for (let i = 0; i < needTranslation.length; i += 3) {
+        const batch = needTranslation.slice(i, i + 3);
+        await Promise.allSettled(batch.map(async article => {
+            const fromLang = article.lang === 'vi' ? 'vi' : 'en';
+            if (fromLang === toLang) return;
+            const cacheKeyTitle = `${fromLang}>${toLang}:${article.title.slice(0,200)}`;
+            const cacheKeyExcerpt = `${fromLang}>${toLang}:${article.excerpt.slice(0,200)}`;
+            // Skip if already cached (set directly without API call)
+            if (translationCache[cacheKeyTitle]) {
+                article.translatedTitle = translationCache[cacheKeyTitle];
+            } else {
+                article.translatedTitle = await translateText(article.title, fromLang, toLang);
+            }
+            if (translationCache[cacheKeyExcerpt]) {
+                article.translatedExcerpt = translationCache[cacheKeyExcerpt];
+            } else {
+                article.translatedExcerpt = await translateText(article.excerpt, fromLang, toLang);
+            }
+            translatingCount++;
+        }));
+        // Progressive render every 2 batches
+        if (i % 6 === 0 && translatingCount > 0) renderAll();
+    }
+    renderAll();
+}
+
+// ==================== SOCIAL MEDIA TRENDING (REAL-TIME) ====================
+// Fetch từ Google Trends RSS, Reddit JSON API, Hacker News API
+// Tất cả link truy cập trực tiếp — KHÔNG cần đăng nhập
+let socialTrendingData = [];
+let socialTrendingLoaded = false;
+
+async function fetchGoogleTrends() {
+    const items = [];
+    const geos = [{code:'VN',label:'VN'},{code:'US',label:'US'}];
+    for (const geo of geos) {
+        try {
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://trends.google.com/trending/rss?geo=${geo.code}`)}`;
+            const resp = await fetch(proxyUrl, {signal: AbortSignal.timeout(10000)});
+            const json = await resp.json();
+            const xmlText = json.contents || '';
+            if (!xmlText || xmlText.length < 100) continue;
+            const xml = new DOMParser().parseFromString(xmlText, 'text/xml');
+            xml.querySelectorAll('item').forEach((item_el, idx) => {
+                if (idx >= 8) return;
+                const title = item_el.querySelector('title')?.textContent?.trim() || '';
+                const link = item_el.querySelector('link')?.textContent?.trim() || item_el.querySelector('link')?.nextSibling?.textContent?.trim() || '';
+                const traffic = item_el.querySelector('ht\\:approx_traffic, approx_traffic')?.textContent || '';
+                const pubDate = item_el.querySelector('pubDate')?.textContent || '';
+                if (!title) return;
+                items.push({
+                    platform: 'google',
+                    icon: '🔍',
+                    title: title,
+                    engagement: traffic ? `${traffic} ${currentLang==='vi'?'lượt tìm':'searches'}` : `Trending ${geo.label}`,
+                    url: link || `https://trends.google.com/trending?geo=${geo.code}`,
+                    time: pubDate ? timeAgo(pubDate) : (currentLang==='vi'?'Đang hot':'Trending now'),
+                    pubDate: pubDate ? new Date(pubDate) : new Date(),
+                    geo: geo.code
+                });
+            });
+        } catch(e) {}
+    }
+    return items;
+}
+
+async function fetchRedditTrending() {
+    const items = [];
+    const subs = ['worldnews','technology','science','popular'];
+    for (const sub of subs) {
+        try {
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.reddit.com/r/${sub}/hot.json?limit=4&t=day`)}`;
+            const resp = await fetch(proxyUrl, {signal: AbortSignal.timeout(10000)});
+            const json = await resp.json();
+            const data = JSON.parse(json.contents || '{}');
+            const posts = data?.data?.children || [];
+            posts.forEach(p => {
+                const d = p.data;
+                if (!d || d.stickied || !d.title) return;
+                const score = d.score || 0;
+                const comments = d.num_comments || 0;
+                items.push({
+                    platform: 'reddit',
+                    icon: '🟠',
+                    title: d.title.length > 120 ? d.title.slice(0,117)+'...' : d.title,
+                    engagement: `⬆ ${formatNum(score)} · 💬 ${formatNum(comments)}`,
+                    url: `https://www.reddit.com${d.permalink}`,
+                    time: d.created_utc ? timeAgo(new Date(d.created_utc * 1000)) : '',
+                    pubDate: d.created_utc ? new Date(d.created_utc * 1000) : new Date(),
+                    score: score + comments * 3,
+                    subreddit: `r/${sub}`
+                });
+            });
+        } catch(e) {}
+    }
+    // Sort by engagement score, remove duplicates
+    const seen = new Set();
+    return items.filter(i => {
+        if (seen.has(i.title)) return false;
+        seen.add(i.title);
+        return true;
+    }).sort((a,b) => (b.score||0) - (a.score||0)).slice(0, 10);
+}
+
+async function fetchHackerNews() {
+    const items = [];
+    try {
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://hacker-news.firebaseio.com/v0/topstories.json')}`;
+        const resp = await fetch(proxyUrl, {signal: AbortSignal.timeout(10000)});
+        const json = await resp.json();
+        const ids = JSON.parse(json.contents || '[]').slice(0, 8);
+        const details = await Promise.allSettled(ids.map(async id => {
+            const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://hacker-news.firebaseio.com/v0/item/${id}.json`)}`, {signal: AbortSignal.timeout(8000)});
+            const j = await r.json();
+            return JSON.parse(j.contents || '{}');
+        }));
+        details.forEach(r => {
+            if (r.status !== 'fulfilled' || !r.value.title) return;
+            const d = r.value;
+            items.push({
+                platform: 'hackernews',
+                icon: '🟡',
+                title: d.title.length > 120 ? d.title.slice(0,117)+'...' : d.title,
+                engagement: `⬆ ${formatNum(d.score||0)} · 💬 ${formatNum(d.descendants||0)}`,
+                url: d.url || `https://news.ycombinator.com/item?id=${d.id}`,
+                time: d.time ? timeAgo(new Date(d.time * 1000)) : '',
+                pubDate: d.time ? new Date(d.time * 1000) : new Date(),
+                hnId: d.id
+            });
+        });
+    } catch(e) {}
+    return items;
+}
+
+async function fetchAllSocialTrending() {
+    const el = document.getElementById('socialTrendingList');
+    el.innerHTML = `<div style="padding:15px;text-align:center;color:var(--text-light);font-size:0.82rem;">
+        <div class="rss-dot" style="display:inline-block;width:8px;height:8px;background:var(--warning);border-radius:50%;animation:pulse 1.5s infinite;margin-right:6px;"></div>
+        ${currentLang==='vi'?'Đang tải xu hướng thời gian thực...':'Loading real-time trends...'}
+    </div>`;
+    const [google, reddit, hn] = await Promise.allSettled([
+        fetchGoogleTrends(),
+        fetchRedditTrending(),
+        fetchHackerNews()
+    ]);
+    socialTrendingData = [
+        ...(google.status==='fulfilled' ? google.value : []),
+        ...(reddit.status==='fulfilled' ? reddit.value : []),
+        ...(hn.status==='fulfilled' ? hn.value : [])
+    ];
+    // Sort by recency
+    socialTrendingData.sort((a,b) => (b.pubDate||0) - (a.pubDate||0));
+    socialTrendingLoaded = true;
+    renderSocialTrending();
+}
+
+// ASIA_TRENDING removed — now uses real RSS data from allArticles
+
+// ==================== CATEGORY DETECTION ====================
+function detectCategory(title, desc) {
+    const t = (title + ' ' + (desc||'')).toLowerCase();
+    if (/politic|government|parliament|election|president|minister|law|vote|đảng|quốc hội|chính phủ|luật|bầu cử/.test(t)) return 'politics';
+    if (/econom|business|market|stock|trade|gdp|inflation|bank|finance|kinh tế|chứng khoán|ngân hàng|tài chính|doanh/.test(t)) return 'economy';
+    if (/tech|ai |artificial|robot|chip|software|app|digital|công nghệ|phần mềm|trí tuệ/.test(t)) return 'tech';
+    if (/sport|football|soccer|basketball|olympic|tennis|match|goal|thể thao|bóng đá|world cup/.test(t)) return 'sports';
+    if (/entertainment|movie|film|music|celebrity|concert|album|giải trí|phim|nhạc|ca sĩ|diễn viên/.test(t)) return 'entertainment';
+    return 'society';
+}
+function detectCountry(source, title) {
+    const s = source.toLowerCase();
+    if (/vnexpress|tuổi trẻ|tuoitre|thanh niên|thanhnien|dân trí|dantri|vietnam/.test(s)) return 'vn';
+    if (/nhk|japan|nhật/.test(s)) return 'jp';
+    if (/yonhap|korea|hàn/.test(s)) return 'kr';
+    if (/xinhua|china|trung/.test(s)) return 'cn';
+    if (/dw |deutsche/.test(s)) return 'de';
+    if (/bbc|guardian/.test(s)) return 'uk';
+    if (/cnn|reuters|bloomberg|techcrunch|verge|usa/.test(s)) return 'us';
+    return 'other';
+}
+const catLabels = {politics:['Chính trị','Politics'],economy:['Kinh tế','Economy'],tech:['Công nghệ','Technology'],sports:['Thể thao','Sports'],entertainment:['Giải trí','Entertainment'],society:['Xã hội','Society']};
+const catIcons = {politics:'🏛️',economy:'📊',tech:'💻',sports:'⚽',entertainment:'🎭',society:'🌍'};
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', () => {
+    // Restore saved language
+    if (currentLang !== 'vi') switchLang(currentLang);
+    updateTime(); setInterval(updateTime, 1000); setInterval(updateLastRefresh, 5000);
+    showSkeletonLoading();
+    fetchAllRSS().then(() => {
+        renderAll();
+        animateStats();
+        // Auto-translate articles if not in default language
+        if (currentLang !== 'vi') translateArticles(currentLang);
+    });
+    startAutoRefresh(); updateBookmarkCount();
+    fetchAllSocialTrending(); renderRegionalTrending();
+    // Auto-refresh social trending every 5 minutes
+    setInterval(fetchAllSocialTrending, 5 * 60 * 1000);
+    window.addEventListener('scroll', () => {
+        document.getElementById('scrollTopBtn').classList.toggle('show', window.scrollY > 400);
+        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 300 && !isLoading) loadMoreNews();
+    });
+    scheduleNotifPopups(); document.addEventListener('keydown', handleKeyboard);
+});
+
+// ==================== SKELETON LOADING ====================
+function showSkeletonLoading() {
+    const grid = document.getElementById('newsGrid');
+    grid.innerHTML = Array(6).fill('').map(() => `
+        <div class="skeleton-card"><div class="skeleton-img"></div>
+        <div class="skeleton-body"><div class="skeleton-line w80"></div><div class="skeleton-line"></div><div class="skeleton-line w60"></div></div></div>
+    `).join('');
+}
+
+// ==================== RSS FETCHING ====================
+// Dùng allorigins.win/get (JSON response) để tránh CORS + rate limit
+async function fetchOneRSS(src) {
+    try {
+        // allorigins /get returns JSON: { contents: "xml string" }
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(src.url)}`;
+        const resp = await fetch(proxyUrl, {signal: AbortSignal.timeout(12000)});
+        if (!resp.ok) return 0;
+        const json = await resp.json();
+        const xmlText = json.contents || '';
+        if (!xmlText || xmlText.length < 100) return 0;
+        const xml = new DOMParser().parseFromString(xmlText, 'text/xml');
+        const items = xml.querySelectorAll('item');
+        let count = 0;
+        items.forEach(item => {
+            if (count >= 10) return;
+            const title = item.querySelector('title')?.textContent?.trim() || '';
+            // Some feeds have <link> as text node, some as CDATA
+            let link = '';
+            const linkEl = item.querySelector('link');
+            if (linkEl) {
+                link = linkEl.textContent?.trim() || '';
+                // Sometimes link is empty but next sibling text has the URL
+                if (!link && linkEl.nextSibling) link = linkEl.nextSibling.textContent?.trim() || '';
+            }
+            // Fallback to guid
+            if (!link) link = item.querySelector('guid')?.textContent?.trim() || '';
+            const pubDate = item.querySelector('pubDate')?.textContent || '';
+            const descRaw = item.querySelector('description')?.textContent || '';
+            const desc = descRaw.replace(/<[^>]*>/g, '').replace(/\s+/g,' ').trim().slice(0, 250);
+            // Get image from enclosure or media:content
+            let img = '';
+            const enclosure = item.querySelector('enclosure');
+            if (enclosure) img = enclosure.getAttribute('url') || '';
+            if (!title || !link) return;
+            if (allArticles.find(a => a.url === link || a.title === title)) return;
+            const category = src.category !== 'society' ? src.category : detectCategory(title, desc);
+            allArticles.push({
+                id: allArticles.length + 1,
+                title,
+                excerpt: desc || title,
+                url: link,
+                source: src.name,
+                icon: src.icon || catIcons[category] || '📰',
+                category,
+                catLabel: catLabels[category] ? catLabels[category][currentLang==='vi'?0:1] : category,
+                country: src.country || detectCountry(src.name, title),
+                lang: src.lang || 'en',
+                pubDate: pubDate ? new Date(pubDate) : new Date(),
+                time: timeAgo(pubDate),
+                views: Math.floor(Math.random() * 50000) + 1000,
+                comments: Math.floor(Math.random() * 2000) + 50,
+                shares: Math.floor(Math.random() * 5000) + 100,
+                imgGradient: getGradient(category),
+                imgUrl: img,
+                content: `<p>${desc || title}</p>`,
+            });
+            count++;
+        });
+        return count;
+    } catch(e) { return 0; }
+}
+
+async function fetchAllRSS() {
+    if (fetchingInProgress) return;
+    fetchingInProgress = true;
+    rssFetchCount = 0; totalFetched = 0;
+    const el = document.getElementById('liveFeedList');
+    el.innerHTML = `<div class="rss-status"><div class="rss-dot" style="background:var(--warning)"></div> ${currentLang==='vi'?'Đang kết nối':'Connecting'} ${RSS_SOURCES.length} RSS...</div>`;
+
+    // Fetch in batches of 5 to avoid overwhelming proxy
+    for (let i = 0; i < RSS_SOURCES.length; i += 5) {
+        const batch = RSS_SOURCES.slice(i, i + 5);
+        const results = await Promise.allSettled(batch.map(async src => {
+            const count = await fetchOneRSS(src);
+            if (count > 0) rssFetchCount++;
+            totalFetched += count;
+            return count;
+        }));
+        // Update UI after each batch
+        el.innerHTML = `<div class="rss-status"><div class="rss-dot" style="background:var(--warning)"></div> ${rssFetchCount}/${RSS_SOURCES.length} ${currentLang==='vi'?'nguồn':'sources'}... ${allArticles.length} ${currentLang==='vi'?'bài':'articles'}</div>`;
+        // Render news progressively
+        if (allArticles.length > 0) {
+            allArticles.sort((a,b) => (b.pubDate||0) - (a.pubDate||0));
+            renderAll();
+        }
+    }
+    allArticles.sort((a,b) => (b.pubDate||0) - (a.pubDate||0));
+    fetchingInProgress = false;
+    renderLiveFeeds();
+    renderAll();
+    animateStats();
+}
+
+function getGradient(cat) {
+    const g = {politics:'linear-gradient(135deg,#1a237e,#3949ab)',economy:'linear-gradient(135deg,#1b5e20,#43a047)',tech:'linear-gradient(135deg,#263238,#546e7a)',sports:'linear-gradient(135deg,#bf360c,#ff5722)',entertainment:'linear-gradient(135deg,#4a148c,#9c27b0)',society:'linear-gradient(135deg,#004d40,#00897b)'};
+    return g[cat] || 'linear-gradient(135deg,#37474f,#78909c)';
+}
+function timeAgo(dateStr) {
+    if (!dateStr) return 'now';
+    const m = Math.floor((Date.now() - new Date(dateStr)) / 60000);
+    if (m < 1) return currentLang==='vi'?'vừa xong':'just now';
+    if (m < 60) return m + (currentLang==='vi'?' phút trước':' min ago');
+    if (m < 1440) return Math.floor(m/60) + (currentLang==='vi'?' giờ trước':' hrs ago');
+    return Math.floor(m/1440) + (currentLang==='vi'?' ngày trước':' days ago');
+}
+
+// ==================== RENDER ALL ====================
+function renderAll() {
+    renderNews(); renderTrending(); renderTicker();
+    renderRecommended(); renderEngagement(); renderLiveFeeds();
+    generateNotifications();
+}
+
+// ==================== TICKER ====================
+function renderTicker() {
+    const data = [...allArticles].sort((a,b) => calcTrendingScore(b)-calcTrendingScore(a)).slice(0,8);
+    if (!data.length) return;
+    const items = data.map(n => `<span>🔴 ${n.title} <a href="${n.url}" target="_blank" style="color:#fff;opacity:0.7;font-size:0.75rem;text-decoration:underline;">[${n.source}]</a></span>`).join('');
+    document.getElementById('tickerContent').innerHTML = items + items;
+}
+
+// ==================== NEWS RENDERING ====================
+function getFilteredNews() {
+    let news = [...allArticles];
+    // Lọc theo ngôn ngữ: VI = ưu tiên tin tiếng Việt, EN = ưu tiên tin tiếng Anh
+    // Trang chủ: hiện tất cả nhưng sắp xếp tin cùng ngôn ngữ lên trước
+    if (currentSection === 'home') {
+        news.sort((a,b) => {
+            const aMatch = (a.lang === currentLang) ? 1 : 0;
+            const bMatch = (b.lang === currentLang) ? 1 : 0;
+            if (bMatch !== aMatch) return bMatch - aMatch;
+            return (b.pubDate||0) - (a.pubDate||0);
+        });
+    }
+    else if (currentSection === 'international') news = news.filter(n => n.lang === 'en' || n.country !== 'vn');
+    else if (currentSection === 'vietnam') news = news.filter(n => n.country === 'vn' || n.lang === 'vi');
+    else if (currentSection === 'trending') news.sort((a,b) => calcTrendingScore(b)-calcTrendingScore(a));
+    else if (currentSection === 'hot24h') news = news.filter(n => isWithin24h(n)).sort((a,b) => calcHot24hScore(b)-calcHot24hScore(a));
+    else if (currentSection === 'bookmarks') news = news.filter(n => bookmarks.includes(n.url));
+    else if (currentSection !== 'live') news = news.filter(n => n.category === currentSection);
+    if (currentCountry !== 'all') news = news.filter(n => n.country === currentCountry);
+    // Apply sort
+    if (currentSort === 'trending') news.sort((a,b) => calcTrendingScore(b)-calcTrendingScore(a));
+    else if (currentSort === 'views') news.sort((a,b) => b.views-a.views);
+    else if (currentSort === 'comments') news.sort((a,b) => b.comments-a.comments);
+    else if (currentSort === 'shares') news.sort((a,b) => b.shares-a.shares);
+    else if (currentSort === 'newest') news.sort((a,b) => (b.pubDate||0)-(a.pubDate||0));
+    return news;
+}
+function renderNews() {
+    const news = getFilteredNews();
+    const grid = document.getElementById('newsGrid');
+    const toShow = news.slice(0, displayedCount);
+    document.getElementById('newsCount').textContent = `(${news.length} ${currentLang==='vi'?'bài':'articles'})`;
+    if (!toShow.length) {
+        grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text-light);">
+            <div style="font-size:3rem;margin-bottom:15px;">${currentSection==='bookmarks'?'🔖':'📭'}</div>
+            <p>${allArticles.length===0?(currentLang==='vi'?'Đang tải tin từ RSS...':'Loading RSS feeds...'):(currentLang==='vi'?'Không tìm thấy':'No articles found')}</p></div>`;
+        return;
+    }
+    grid.innerHTML = toShow.map((item, i) => {
+        const catClass = `cat-${item.category}`;
+        const isFeatured = i === 0 && currentSection === 'home';
+        const isBookmarked = bookmarks.includes(item.url);
+        const isRead = readHistory.includes(item.url);
+        const score = calcTrendingScore(item);
+        const isTrending = score > 100000;
+        const delay = Math.min(i * 0.04, 0.35);
+        let domain = item.source;
+        try { domain = new URL(item.url).hostname.replace('www.',''); } catch(e){}
+        return `
+        <div class="news-card ${isFeatured?'featured-card':''} ${isRead?'read-article':''}" onclick="openArticle('${encodeURIComponent(item.url)}')" style="animation-delay:${delay}s">
+            ${isTrending?'<div class="trending-badge">🔥 Trending</div>':''}
+            <div class="card-actions">
+                <button class="card-action-btn ${isBookmarked?'bookmarked':''}" onclick="event.stopPropagation();toggleBookmark('${encodeURIComponent(item.url)}')" title="Lưu">🔖</button>
+                <button class="card-action-btn" onclick="event.stopPropagation();window.open('${item.url}','_blank')" title="${currentLang==='vi'?'Đọc bài gốc':'Read original'}">🔗</button>
+            </div>
+            <div class="card-img" style="background:${item.imgUrl?`url(${item.imgUrl}) center/cover`:item.imgGradient}">${item.imgUrl?'':item.icon}</div>
+            <div class="card-body">
+                <span class="card-category ${catClass}">${item.catLabel}</span>
+                <h3 class="card-title">${(item.lang !== currentLang && item.translatedTitle) ? item.translatedTitle : item.title}</h3>
+                <p class="card-excerpt">${(item.lang !== currentLang && item.translatedExcerpt) ? item.translatedExcerpt : item.excerpt}</p>
+                ${(item.lang !== currentLang && item.translatedTitle) ? '<span style="font-size:0.65rem;color:var(--accent);opacity:0.8;">🌐 '+(currentLang==='vi'?'Đã dịch từ ':'Translated from ')+item.lang.toUpperCase()+'</span>' : ''}
+                <div class="card-meta">
+                    <span class="card-source">${item.source}</span>
+                    <div class="card-stats">
+                        <span>👁 ${formatNum(item.views)}</span>
+                        <span>💬 ${formatNum(item.comments)}</span>
+                        <span>🔄 ${formatNum(item.shares)}</span>
+                    </div>
+                </div>
+                <div class="card-source-link">
+                    <span>🔗</span>
+                    <a href="${item.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="${item.url}">${domain}</a>
+                    <span style="margin-left:auto;font-size:0.68rem;color:var(--trending);font-weight:700;">${isWithin24h(item)?'⚡'+formatNum(calcHot24hScore(item))+'/h':''}  🔥${formatNum(score)}</span>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+    document.getElementById('infiniteLoader').style.display = displayedCount < news.length ? 'block' : 'none';
+}
+
+// ==================== LIVE FEEDS SIDEBAR ====================
+function renderLiveFeeds() {
+    const el = document.getElementById('liveFeedList');
+    const status = `<div class="rss-status"><div class="rss-dot"></div> ${rssFetchCount}/${RSS_SOURCES.length} ${currentLang==='vi'?'nguồn':'sources'} · ${allArticles.length} ${currentLang==='vi'?'bài thật':'real articles'}</div>`;
+    if (!allArticles.length) { el.innerHTML = status + `<p style="padding:15px;text-align:center;color:var(--text-light);font-size:0.82rem;">Loading...</p>`; return; }
+    el.innerHTML = status + allArticles.slice(0, 20).map(f => {
+        const liveTitle = (f.lang !== currentLang && f.translatedTitle) ? f.translatedTitle : f.title;
+        return `
+        <div style="padding:6px 0;border-bottom:1px solid var(--border);">
+            <a href="${f.url}" target="_blank" rel="noopener" style="font-size:0.78rem;font-weight:600;line-height:1.3;color:var(--text);text-decoration:none;display:block;">${liveTitle}${(f.lang !== currentLang && f.translatedTitle) ? ' <span style="font-size:0.6rem;color:var(--accent);">🌐</span>' : ''}</a>
+            <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-light);margin-top:2px;">
+                <span>${f.source} · ${f.time}</span>
+                <a href="${f.url}" target="_blank" rel="noopener" class="live-feed-source">🔗 ${currentLang==='vi'?'Bài gốc':'Source'}</a>
+            </div>
+        </div>`;}).join('');
+}
+
+// ==================== TRENDING ====================
+function renderTrending() {
+    // === TRENDING (Engagement × TimeDecay) ===
+    const news = [...allArticles].map(n=>({...n,score:calcTrendingScore(n)})).sort((a,b)=>b.score-a.score).slice(0,10);
+    if (!news.length) return;
+    const maxScore = news[0].score || 1;
+    document.getElementById('trendingList').innerHTML = news.map((item,i)=>{
+        const ageH = Math.max(0,(Date.now()-(item.pubDate||Date.now()))/3600000);
+        const ageLabel = ageH<1?'<1h':ageH<24?Math.round(ageH)+'h':Math.round(ageH/24)+'d';
+        const displayTitle = (item.lang !== currentLang && item.translatedTitle) ? item.translatedTitle : item.title;
+        return `
+        <li onclick="openArticle('${encodeURIComponent(item.url)}')">
+            <span class="trending-num">${i+1}</span>
+            <div class="trending-info">
+                <div class="t-title">${displayTitle}${(item.lang !== currentLang && item.translatedTitle) ? ' <span style="font-size:0.6rem;color:var(--accent);">🌐</span>' : ''}</div>
+                <div class="t-meta">${item.source} · ${ageLabel} ago · 👁${formatNum(item.views)} 💬${formatNum(item.comments)} 🔄${formatNum(item.shares)}</div>
+                <div class="t-meta" style="color:var(--trending);font-weight:700;">Score: ${formatNum(item.score)}</div>
+                <div class="trending-chart"><div class="bar" style="width:${Math.round(item.score/maxScore*100)}%"></div></div>
+            </div>
+        </li>`;}).join('');
+
+    // === HOT 24H (Velocity = Engagement / Hours) ===
+    const hot24 = [...allArticles].filter(n=>isWithin24h(n)).map(n=>({...n,velocity:calcHot24hScore(n)})).sort((a,b)=>b.velocity-a.velocity).slice(0,8);
+    if (!hot24.length) { document.getElementById('hot24hList').innerHTML = `<li style="padding:10px;color:var(--text-light);font-size:0.85rem;">${currentLang==='vi'?'Chưa có dữ liệu 24h':'No 24h data yet'}</li>`; return; }
+    const maxV = hot24[0].velocity || 1;
+    document.getElementById('hot24hList').innerHTML = hot24.map((item,i)=>{
+        const ageH = Math.max(0.5,(Date.now()-(item.pubDate||Date.now()))/3600000);
+        const ageLabel = ageH<1?Math.round(ageH*60)+'m':Math.round(ageH)+'h';
+        const displayTitle2 = (item.lang !== currentLang && item.translatedTitle) ? item.translatedTitle : item.title;
+        return `
+        <li onclick="openArticle('${encodeURIComponent(item.url)}')" style="${i<3?'background:rgba(233,69,96,0.04);border-radius:6px;padding:8px 4px;margin:2px 0;':''}">
+            <span class="trending-num" style="${i<3?'color:var(--accent);':'color:var(--text-light);'}">${i+1}</span>
+            <div class="trending-info">
+                <div class="t-title">${displayTitle2}${(item.lang !== currentLang && item.translatedTitle) ? ' <span style="font-size:0.6rem;color:var(--accent);">🌐</span>' : ''}</div>
+                <div class="t-meta">${item.source} · 🕐${ageLabel} · 👁${formatNum(item.views)}</div>
+                <div class="t-meta" style="color:var(--accent);font-weight:700;">⚡ ${formatNum(item.velocity)}/h</div>
+                <div class="trending-chart"><div class="bar" style="width:${Math.round(item.velocity/maxV*100)}%;background:linear-gradient(90deg,var(--accent),var(--warning))"></div></div>
+            </div>
+        </li>`;}).join('');
+}
+
+// ==================== SOCIAL TRENDING ====================
+function renderSocialTrending() {
+    if (!socialTrendingLoaded) return;
+    let data = [...socialTrendingData];
+    if (currentSocialFilter !== 'all') data = data.filter(d=>d.platform===currentSocialFilter);
+    if (!data.length) {
+        document.getElementById('socialTrendingList').innerHTML = `<p style="padding:15px;text-align:center;color:var(--text-light);font-size:0.82rem;">${currentLang==='vi'?'Không có dữ liệu':'No data'}</p>`;
+        return;
+    }
+    const platformLabels = {google:currentLang==='vi'?'Google Trends':'Google Trends',reddit:'Reddit',hackernews:'Hacker News'};
+    document.getElementById('socialTrendingList').innerHTML = data.map(item=>`
+        <div style="padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="window.open('${item.url}','_blank')">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+                <span>${item.icon}</span><span style="font-size:0.8rem;font-weight:600;line-height:1.3;">${item.title}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.68rem;color:var(--text-light);">
+                <span>${item.engagement}${item.subreddit?' · '+item.subreddit:''}</span>
+                <span>${item.time}</span>
+            </div>
+        </div>`).join('');
+}
+function filterSocial(p,el){currentSocialFilter=p;el.parentElement.querySelectorAll('.country-tab').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderSocialTrending();}
+
+// ==================== REGIONAL TRENDING ====================
+function renderRegionalTrending() {
+    // Lấy tin thật từ RSS theo khu vực (không phải data cứng)
+    const regionalCountries = ['jp','cn','kr','in','sg','id','th','ph','my','au','mm','kh'];
+    let data = allArticles.filter(n => regionalCountries.includes(n.country));
+    if (currentRegionFilter !== 'all') data = data.filter(d => d.country === currentRegionFilter);
+    data = data.sort((a,b) => calcTrendingScore(b) - calcTrendingScore(a)).slice(0, 12);
+    const flags = {jp:'🇯🇵',cn:'🇨🇳',kr:'🇰🇷',in:'🇮🇳',sg:'🇸🇬',id:'🇮🇩',th:'🇹🇭',ph:'🇵🇭',my:'🇲🇾',au:'🇦🇺',mm:'🇲🇲',kh:'🇰🇭'};
+    if (!data.length) {
+        document.getElementById('regionalTrendingList').innerHTML = `<p style="padding:10px;color:var(--text-light);font-size:0.82rem;text-align:center;">${currentLang==='vi'?'Đang tải tin khu vực...':'Loading regional news...'}</p>`;
+        return;
+    }
+    document.getElementById('regionalTrendingList').innerHTML = data.map(item => `
+        <div style="padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="window.open('${item.url}','_blank')">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+                <span>${flags[item.country]||'🌏'}</span><span style="font-size:0.78rem;font-weight:600;line-height:1.3;">${(item.lang !== currentLang && item.translatedTitle) ? item.translatedTitle : item.title}${(item.lang !== currentLang && item.translatedTitle) ? ' <span style="font-size:0.6rem;color:var(--accent);">🌐</span>' : ''}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.68rem;color:var(--text-light);">
+                <span>${item.source} · ${item.time}</span>
+                <a href="${item.url}" target="_blank" rel="noopener" class="live-feed-source" onclick="event.stopPropagation()">🔗</a>
+            </div>
+        </div>`).join('');
+}
+function filterRegion(c,el){currentRegionFilter=c;el.parentElement.querySelectorAll('.country-tab').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderRegionalTrending();}
+
+// ==================== RECOMMENDED ====================
+function renderRecommended() {
+    const readUrls = readHistory;
+    let news = allArticles.filter(n=>!readUrls.includes(n.url)).sort(()=>Math.random()-0.5).slice(0,5);
+    if (!news.length) news = allArticles.slice(0,5);
+    document.getElementById('recommendList').innerHTML = news.map(item=>`
+        <li onclick="openArticle('${encodeURIComponent(item.url)}')"><span style="font-size:1.3rem;">${item.icon}</span>
+            <div class="trending-info"><div class="t-title">${item.title}</div><div class="t-meta">${item.source} · <a href="${item.url}" target="_blank" style="color:var(--accent2)" onclick="event.stopPropagation()">🔗</a></div></div>
+        </li>`).join('');
+}
+
+// ==================== ENGAGEMENT ====================
+function renderEngagement() {
+    if (!allArticles.length) return;
+    const cats = [...new Set(allArticles.map(n=>n.category))];
+    const maxS = Math.max(...allArticles.map(n=>calcTrendingScore(n)));
+    const colors = {politics:'#1565c0',economy:'#2e7d32',tech:'#7b1fa2',sports:'#e65100',entertainment:'#c62828',society:'#00695c'};
+    document.getElementById('engagementStats').innerHTML = cats.map(cat=>{
+        const arts = allArticles.filter(n=>n.category===cat);
+        const avg = Math.round(arts.reduce((s,n)=>s+calcTrendingScore(n),0)/arts.length);
+        return `<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:2px;">
+            <span>${catLabels[cat]?catLabels[cat][currentLang==='vi'?0:1]:cat} (${arts.length})</span>
+            <span style="font-weight:700;">avg ${formatNum(avg)}</span></div>
+            <div class="trending-chart"><div class="bar" style="width:${Math.round(avg/maxS*100)}%;background:${colors[cat]||'#999'}"></div></div></div>`;
+    }).join('');
+}
+
+// ==================== ARTICLE MODAL ====================
+function openArticle(encodedUrl) {
+    const url = decodeURIComponent(encodedUrl);
+    const article = allArticles.find(n=>n.url===url);
+    if (!article) { window.open(url, '_blank'); return; }
+    currentModalArticle = article;
+    addToHistory(article.url);
+    let domain = article.source;
+    try { domain = new URL(article.url).hostname.replace('www.',''); } catch(e){}
+    const score = calcTrendingScore(article);
+    document.getElementById('modalImg').style.background = article.imgGradient;
+    document.getElementById('modalImg').innerHTML = `<span style="font-size:4rem">${article.icon}</span>`;
+    document.getElementById('modalCat').className = `card-category cat-${article.category}`;
+    document.getElementById('modalCat').textContent = article.catLabel;
+    document.getElementById('modalTitle').textContent = article.title;
+    document.getElementById('modalSource').textContent = `📰 ${article.source}`;
+    document.getElementById('modalTime').textContent = `🕐 ${article.time}`;
+    document.getElementById('modalViews').textContent = `👁 ${formatNum(article.views)} · 💬 ${formatNum(article.comments)} · 🔄 ${formatNum(article.shares)} · Score: ${formatNum(score)}`;
+    document.getElementById('modalReadTime').textContent = '';
+    document.getElementById('modalContent').innerHTML =
+        `<p>${article.excerpt}</p>
+         <div class="modal-source-link">🔗 ${currentLang==='vi'?'Link bài gốc:':'Original article:'} <a href="${article.url}" target="_blank" rel="noopener">${domain}</a></div>
+         <a href="${article.url}" target="_blank" rel="noopener" class="btn-read-original">📰 ${currentLang==='vi'?'Đọc toàn bộ bài viết tại '+article.source:'Read full article at '+article.source} →</a>
+         <p style="font-size:0.78rem;color:var(--text-light);margin-top:12px;font-style:italic;">${currentLang==='vi'?'💡 Nhấn nút trên để đọc bài viết đầy đủ tại trang gốc của '+article.source+'. NewsHub chỉ hiển thị tiêu đề và tóm tắt, nội dung đầy đủ thuộc bản quyền nguồn gốc.':'💡 Click above to read the full article at '+article.source+'. NewsHub only displays title and summary; full content belongs to the original source.'}</p>`;
+    updateModalBookmarkBtn();
+    document.getElementById('articleModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+    renderNews();
+}
+function closeModal() { document.getElementById('articleModal').classList.remove('show'); document.body.style.overflow=''; currentModalArticle=null; }
+document.getElementById('articleModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+
+// ==================== SHARE (REAL) ====================
+function shareArticle(platform) {
+    if (!currentModalArticle) return;
+    const u = encodeURIComponent(currentModalArticle.url);
+    const t = encodeURIComponent(currentModalArticle.title);
+    if (platform==='facebook') window.open(`https://www.facebook.com/sharer/sharer.php?u=${u}`,'_blank','width=600,height=400');
+    else if (platform==='twitter') window.open(`https://twitter.com/intent/tweet?text=${t}&url=${u}`,'_blank','width=600,height=400');
+    else if (platform==='copy') navigator.clipboard.writeText(`${currentModalArticle.title}\n${currentModalArticle.url}`).then(()=>showToast(currentLang==='vi'?'Đã sao chép!':'Copied!'));
+}
+
+// ==================== BOOKMARKS ====================
+function toggleBookmark(encodedUrl) {
+    const url = decodeURIComponent(encodedUrl);
+    const idx = bookmarks.indexOf(url);
+    if (idx>-1) { bookmarks.splice(idx,1); showToast(currentLang==='vi'?'Đã bỏ lưu':'Removed'); }
+    else { bookmarks.push(url); showToast(currentLang==='vi'?'Đã lưu':'Bookmarked'); }
+    localStorage.setItem('newshub_bookmarks2',JSON.stringify(bookmarks));
+    updateBookmarkCount(); renderNews(); renderBookmarkPanel();
+}
+function toggleBookmarkModal() { if(currentModalArticle) toggleBookmark(encodeURIComponent(currentModalArticle.url)); updateModalBookmarkBtn(); }
+function updateModalBookmarkBtn() {
+    if(!currentModalArticle) return;
+    const btn = document.getElementById('modalBookmarkBtn');
+    const isB = bookmarks.includes(currentModalArticle.url);
+    btn.textContent = isB?'✅ '+(currentLang==='vi'?'Đã lưu':'Saved'):'🔖 '+(currentLang==='vi'?'Lưu':'Save');
+    btn.className = `modal-action-btn share-bookmark ${isB?'active':''}`;
+}
+function updateBookmarkCount() {
+    document.getElementById('bookmarkCount').textContent = bookmarks.length;
+    document.getElementById('statBookmarks').textContent = bookmarks.length;
+}
+
+// ==================== HISTORY ====================
+function addToHistory(url) {
+    readHistory = readHistory.filter(u=>u!==url);
+    readHistory.unshift(url);
+    if(readHistory.length>100) readHistory=readHistory.slice(0,100);
+    localStorage.setItem('newshub_history2',JSON.stringify(readHistory));
+}
+
+// ==================== NOTIFICATIONS ====================
+function generateNotifications() {
+    const top = [...allArticles].sort((a,b)=>calcTrendingScore(b)-calcTrendingScore(a)).slice(0,6);
+    notifications = top.map((n,i)=>({id:i,title:n.title,source:n.source,time:n.time,url:n.url,read:false}));
+    document.getElementById('notifCount').textContent = notifications.filter(n=>!n.read).length;
+    renderNotifPanel();
+}
+function renderNotifPanel() {
+    document.getElementById('notifList').innerHTML = notifications.map(n=>`
+        <div class="notif-item ${n.read?'':'unread'}" onclick="notifications[${n.id}].read=true;window.open('${n.url}','_blank');renderNotifPanel();document.getElementById('notifCount').textContent=notifications.filter(x=>!x.read).length;">
+            <div class="notif-title">${n.title}</div>
+            <div class="notif-meta">${n.source} · ${n.time} · <a href="${n.url}" target="_blank" style="color:var(--accent2);font-size:0.72rem;" onclick="event.stopPropagation()">🔗 bài gốc</a></div>
+        </div>`).join('');
+}
+function scheduleNotifPopups() {
+    let idx = 0;
+    setInterval(()=>{
+        if(!allArticles.length) return;
+        const sorted = [...allArticles].sort((a,b)=>calcTrendingScore(b)-calcTrendingScore(a));
+        if(idx>=sorted.length) idx=0;
+        document.getElementById('npContent').textContent = sorted[idx].title;
+        document.getElementById('notifPopup').classList.add('show');
+        setTimeout(()=>document.getElementById('notifPopup').classList.remove('show'),5000);
+        idx++;
+    },45000);
+}
+function closeNotifPopup(){document.getElementById('notifPopup').classList.remove('show');}
+
+// ==================== PANELS ====================
+function toggleNotifPanel(){closeAllPanels();document.getElementById('notifPanel').classList.toggle('open');document.getElementById('panelOverlay').classList.toggle('show');}
+function toggleBookmarkPanel(){closeAllPanels();document.getElementById('bookmarkPanel').classList.toggle('open');document.getElementById('panelOverlay').classList.toggle('show');renderBookmarkPanel();}
+function toggleHistoryPanel(){closeAllPanels();document.getElementById('historyPanel').classList.toggle('open');document.getElementById('panelOverlay').classList.toggle('show');renderHistoryPanel();}
+function closeAllPanels(){['notifPanel','bookmarkPanel','historyPanel'].forEach(id=>document.getElementById(id).classList.remove('open'));document.getElementById('panelOverlay').classList.remove('show');}
+function renderBookmarkPanel(){
+    const list=document.getElementById('bookmarkList');
+    if(!bookmarks.length){list.innerHTML=`<div class="bookmark-empty"><div style="font-size:2.5rem;margin-bottom:10px;">🔖</div><p>${currentLang==='vi'?'Chưa lưu bài nào':'No bookmarks'}</p></div>`;return;}
+    list.innerHTML=bookmarks.map(url=>{const a=allArticles.find(n=>n.url===url);if(!a)return '';
+    return `<div class="bookmark-item" onclick="window.open('${a.url}','_blank')"><span class="bm-icon">${a.icon}</span><div><div class="bm-title">${a.title}</div><div class="bm-meta">${a.source} · <a href="${a.url}" target="_blank" style="color:var(--accent2)" onclick="event.stopPropagation()">🔗 bài gốc</a></div></div><button class="bm-remove" onclick="event.stopPropagation();toggleBookmark('${encodeURIComponent(a.url)}')">✕</button></div>`;}).join('');
+}
+function renderHistoryPanel(){
+    document.getElementById('historyStats').innerHTML=`
+        <div><div class="hs-num">${readHistory.length}</div><div class="hs-label">${currentLang==='vi'?'Đã đọc':'Read'}</div></div>
+        <div><div class="hs-num">${bookmarks.length}</div><div class="hs-label">${currentLang==='vi'?'Đã lưu':'Saved'}</div></div>
+        <div><div class="hs-num">${allArticles.length}</div><div class="hs-label">${currentLang==='vi'?'Tổng tin':'Total'}</div></div>`;
+    document.getElementById('historyList').innerHTML=readHistory.slice(0,20).map(url=>{const a=allArticles.find(n=>n.url===url);if(!a)return '';
+    return `<div class="bookmark-item" onclick="window.open('${a.url}','_blank')"><span class="bm-icon">${a.icon}</span><div><div class="bm-title">${a.title}</div><div class="bm-meta">${a.source} · <a href="${a.url}" target="_blank" style="color:var(--accent2)" onclick="event.stopPropagation()">🔗</a></div></div></div>`;}).join('');
+}
+
+// ==================== NAVIGATION ====================
+function switchSection(section,el){
+    event.preventDefault();currentSection=section;currentCountry='all';displayedCount=12;
+    document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+    if(el)el.classList.add('active');
+    const icons={home:'🏠',international:'🌍',vietnam:'🇻🇳',politics:'🏛️',economy:'📊',entertainment:'🎭',tech:'💻',sports:'⚽',trending:'🔥',hot24h:'⚡',bookmarks:'🔖',live:'📡'};
+    const lVI={home:'Tin Mới Nhất',international:'Tin Quốc Tế',vietnam:'Tin Việt Nam',politics:'Chính Trị',economy:'Kinh Tế',entertainment:'Giải Trí',tech:'Công Nghệ',sports:'Thể Thao',trending:'Xu Hướng',hot24h:'Hot 24h',bookmarks:'Đã Lưu',live:'Live Feed'};
+    const lEN={home:'Latest News',international:'International',vietnam:'Vietnam',politics:'Politics',economy:'Economy',entertainment:'Entertainment',tech:'Technology',sports:'Sports',trending:'Trending',hot24h:'Hot 24h',bookmarks:'Bookmarks',live:'Live Feed'};
+    document.getElementById('sectionTitle').querySelector('.icon').textContent=icons[section]||'📰';
+    document.getElementById('sectionLabel').textContent=(currentLang==='vi'?lVI:lEN)[section];
+    document.getElementById('countryTabs').style.display=section==='international'?'flex':'none';
+    document.querySelectorAll('#countryTabs .country-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelector('.country-tab[data-country="all"]')?.classList.add('active');
+    renderNews();window.scrollTo({top:300,behavior:'smooth'});
+}
+function filterCountry(c,el){currentCountry=c;displayedCount=12;document.querySelectorAll('#countryTabs .country-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderNews();}
+function setSort(s,el){currentSort=s;document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));if(el)el.classList.add('active');displayedCount=12;renderNews();}
+
+// ==================== LANGUAGE ====================
+function switchLang(lang){
+    currentLang=lang;
+    localStorage.setItem('newshub_lang', lang);
+    document.getElementById('btnVI').classList.toggle('active',lang==='vi');
+    document.getElementById('btnEN').classList.toggle('active',lang==='en');
+    document.getElementById('searchInput').placeholder=lang==='vi'?'Tìm kiếm... (Ctrl+K)':'Search... (Ctrl+K)';
+    const nav=lang==='vi'?['🏠 Trang chủ','🌍 Quốc tế','🇻🇳 Việt Nam','🏛️ Chính trị','📊 Kinh tế','🎭 Giải trí','💻 Công nghệ','⚽ Thể thao','🔥 Xu hướng','⚡ Hot 24h','🔖 Đã lưu','📡 Live']:['🏠 Home','🌍 International','🇻🇳 Vietnam','🏛️ Politics','📊 Economy','🎭 Entertainment','💻 Technology','⚽ Sports','🔥 Trending','⚡ Hot 24h','🔖 Saved','📡 Live'];
+    document.querySelectorAll('#navMenu a').forEach((a,i)=>{a.textContent=nav[i]});
+    document.querySelectorAll('[data-vi]').forEach(el=>{el.textContent=el.getAttribute(`data-${lang}`)});
+    document.getElementById('weatherDesc').textContent=lang==='vi'?'TP. Hồ Chí Minh — Nắng nhẹ':'Ho Chi Minh City — Partly Sunny';
+    // Translate tooltips
+    document.querySelectorAll('[data-title-vi]').forEach(el=>{el.title=el.getAttribute(`data-title-${lang}`)});
+    // Update catLabels on existing articles
+    allArticles.forEach(a=>{a.catLabel=catLabels[a.category]?catLabels[a.category][lang==='vi'?0:1]:a.category; a.time=timeAgo(a.pubDate);});
+    // Update social trending time labels
+    socialTrendingData.forEach(s=>{if(s.pubDate)s.time=timeAgo(s.pubDate);});
+    renderAll();renderSocialTrending();renderRegionalTrending();
+    switchSection(currentSection,document.querySelector(`nav a[data-section="${currentSection}"]`));
+    // Trigger article translation in background
+    translateArticles(lang);
+}
+
+// ==================== SEARCH ====================
+function handleSearch(e){
+    const q=e.target.value.toLowerCase().trim();
+    document.getElementById('searchClear').style.display=q.length>0?'block':'none';
+    if(q.length<2){renderNews();return;}
+    const results=allArticles.filter(n=>n.title.toLowerCase().includes(q)||n.excerpt.toLowerCase().includes(q)||n.source.toLowerCase().includes(q)||(n.translatedTitle&&n.translatedTitle.toLowerCase().includes(q))||(n.translatedExcerpt&&n.translatedExcerpt.toLowerCase().includes(q)));
+    document.getElementById('newsCount').textContent=`(${results.length} ${currentLang==='vi'?'kết quả':'results'})`;
+    const grid=document.getElementById('newsGrid');
+    if(!results.length){grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text-light);"><div style="font-size:3rem;">🔍</div><p>${currentLang==='vi'?'Không tìm thấy':'No results'}</p></div>`;return;}
+    const hl=s=>s.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi'),'<mark style="background:#fff176;padding:0 2px;border-radius:2px;">$1</mark>');
+    grid.innerHTML=results.slice(0,20).map((item,i)=>{let domain=item.source;try{domain=new URL(item.url).hostname.replace('www.','');}catch(e){}
+    return `<div class="news-card" onclick="openArticle('${encodeURIComponent(item.url)}')" style="animation-delay:${i*0.03}s">
+        <div class="card-img" style="background:${item.imgUrl?`url(${item.imgUrl}) center/cover`:item.imgGradient}">${item.imgUrl?'':item.icon}</div>
+        <div class="card-body"><span class="card-category cat-${item.category}">${item.catLabel}</span>
+            <h3 class="card-title">${hl((item.lang !== currentLang && item.translatedTitle) ? item.translatedTitle : item.title)}</h3><p class="card-excerpt">${hl((item.lang !== currentLang && item.translatedExcerpt) ? item.translatedExcerpt : item.excerpt)}</p>
+            ${(item.lang !== currentLang && item.translatedTitle) ? '<span style="font-size:0.65rem;color:var(--accent);opacity:0.8;">🌐 '+(currentLang==='vi'?'Đã dịch từ ':'Translated from ')+item.lang.toUpperCase()+'</span>' : ''}
+            <div class="card-meta"><span class="card-source">${item.source}</span></div>
+            <div class="card-source-link"><span>🔗</span><a href="${item.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">${domain}</a></div>
+        </div></div>`;}).join('');
+}
+function clearSearch(){document.getElementById('searchInput').value='';document.getElementById('searchClear').style.display='none';renderNews();}
+
+// ==================== KEYBOARD & THEME ====================
+function handleKeyboard(e){
+    if(e.target.tagName==='INPUT')return;
+    if(e.ctrlKey&&e.key==='k'){e.preventDefault();document.getElementById('searchInput').focus();return;}
+    if(e.key==='Escape'){closeModal();closeAllPanels();closeNotifPopup();document.getElementById('kbdHelp').classList.remove('show');return;}
+    if(e.key==='d')toggleTheme();if(e.key==='r')refreshAllNews();if(e.key==='l')switchLang(currentLang==='vi'?'en':'vi');
+    if(e.key==='b')toggleBookmarkPanel();if(e.key==='?')document.getElementById('kbdHelp').classList.toggle('show');
+}
+function showKbdHelp(){document.getElementById('kbdHelp').classList.toggle('show');}
+function toggleTheme(){isDark=!isDark;document.body.setAttribute('data-theme',isDark?'dark':'');document.getElementById('themeBtn').textContent=isDark?'☀️':'🌙';showToast(isDark?'Dark':'Light');}
+
+// ==================== UTILITIES ====================
+function formatNum(n){return n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n.toString();}
+function loadMoreNews(){if(isLoading)return;const news=getFilteredNews();if(displayedCount>=news.length)return;isLoading=true;displayedCount+=12;setTimeout(()=>{renderNews();isLoading=false;},300);}
+function refreshAllNews(){
+    lastUpdate=new Date();document.getElementById('statUpdated').textContent='0s';
+    autoRefreshCountdown=autoRefreshInterval;document.getElementById('refreshProgress').style.width='0%';
+    document.getElementById('newsGrid').style.opacity='0.3';document.getElementById('newsGrid').style.transition='opacity 0.3s';
+    // Simulate engagement updates
+    allArticles.forEach(n=>{n.views+=Math.floor(Math.random()*500);n.comments+=Math.floor(Math.random()*40);n.shares+=Math.floor(Math.random()*80);});
+    // Also re-fetch RSS for new articles
+    fetchAllRSS().then(()=>{
+        renderAll();document.getElementById('newsGrid').style.opacity='1';
+        showToast(currentLang==='vi'?'Đã cập nhật!':'Updated!');
+    });
+}
+function startAutoRefresh(){
+    if(autoRefreshTimer)clearInterval(autoRefreshTimer);autoRefreshCountdown=autoRefreshInterval;
+    autoRefreshTimer=setInterval(()=>{if(!autoRefreshEnabled)return;autoRefreshCountdown--;
+        document.getElementById('refreshProgress').style.width=((autoRefreshInterval-autoRefreshCountdown)/autoRefreshInterval*100)+'%';
+        if(autoRefreshCountdown<=0){refreshAllNews();autoRefreshCountdown=autoRefreshInterval;}
+    },1000);
+}
+function toggleAutoRefresh(){autoRefreshEnabled=!autoRefreshEnabled;document.getElementById('autoRefreshBtn').textContent=autoRefreshEnabled?'⏱ 90s':'⏸ Off';if(!autoRefreshEnabled)document.getElementById('refreshProgress').style.width='0%';showToast(autoRefreshEnabled?'Auto: ON':'Auto: OFF');}
+function changeFontSize(delta){let s=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--font-scale'));s=Math.max(0.8,Math.min(1.3,s+delta));document.documentElement.style.setProperty('--font-scale',s);showToast(`Font: ${Math.round(s*100)}%`);}
+function animateStats(){const el=document.getElementById('statArticles');const target=allArticles.length||0;el.textContent=target.toLocaleString();}
+function showToast(msg){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast';t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3000);}
+function updateTime(){const now=new Date();document.getElementById('currentTime').textContent=now.toLocaleDateString(currentLang==='vi'?'vi-VN':'en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+function updateLastRefresh(){const s=Math.floor((new Date()-lastUpdate)/1000);document.getElementById('statUpdated').textContent=s<60?s+'s':Math.floor(s/60)+'m';}
+</script>
+</content>
+</invoke>
+</body>
+</html>

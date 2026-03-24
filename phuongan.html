@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phương Án Xây Dựng Phần Mềm Tổng Hợp Tin Tức Thời Gian Thực</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a2e;
+            line-height: 1.7;
+        }
+        .header {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            padding: 50px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.85;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        .section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.06);
+        }
+        .section h2 {
+            font-size: 1.5rem;
+            color: #302b63;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #302b63;
+            display: inline-block;
+        }
+        .section h3 {
+            font-size: 1.15rem;
+            color: #4a4870;
+            margin: 20px 0 12px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.95rem;
+        }
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border: 1px solid #e0e0e0;
+        }
+        th {
+            background: #302b63;
+            color: #fff;
+            font-weight: 600;
+        }
+        tr:nth-child(even) { background: #f8f8fc; }
+        tr:hover { background: #eeeef5; }
+        .architecture-box {
+            background: #1a1a2e;
+            color: #00ff88;
+            padding: 25px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+            margin: 15px 0;
+        }
+        .formula-box {
+            background: #f0f0ff;
+            border-left: 4px solid #302b63;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+        }
+        .ui-mockup {
+            background: #fafafa;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            white-space: pre;
+            overflow-x: auto;
+            line-height: 1.5;
+            margin: 15px 0;
+        }
+        .phase {
+            border-left: 4px solid #302b63;
+            padding: 15px 20px;
+            margin: 15px 0;
+            background: #f8f8fc;
+            border-radius: 0 8px 8px 0;
+        }
+        .phase strong {
+            color: #302b63;
+            font-size: 1.05rem;
+        }
+        .phase ul {
+            margin: 8px 0 0 20px;
+        }
+        .phase ul li {
+            margin-bottom: 5px;
+        }
+        .warning-box {
+            background: #fff8e1;
+            border-left: 4px solid #ff9800;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+        }
+        .warning-box strong { color: #e65100; }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 2px;
+        }
+        .badge-blue { background: #e3f2fd; color: #1565c0; }
+        .badge-green { background: #e8f5e9; color: #2e7d32; }
+        .badge-purple { background: #f3e5f5; color: #7b1fa2; }
+        .badge-orange { background: #fff3e0; color: #e65100; }
+        ul { margin-left: 20px; }
+        ul li { margin-bottom: 6px; }
+        .footer {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h1>PHƯƠNG ÁN XÂY DỰNG PHẦN MỀM<br>TỔNG HỢP TIN TỨC THỜI GIAN THỰC</h1>
+    <p>NewsHub — Nền tảng tổng hợp, phân loại và gợi ý tin tức xu hướng đa ngôn ngữ</p>
+</div>
+
+<div class="container">
+
+    <!-- 1. TỔNG QUAN -->
+    <div class="section">
+        <h2>1. Tổng Quan Hệ Thống</h2>
+        <p><strong>Mục tiêu:</strong> Xây dựng nền tảng tự động thu thập, phân loại và gợi ý tin tức xu hướng từ nhiều nguồn quốc tế và trong nước, phục vụ người dùng Việt Nam và quốc tế.</p>
+        <br>
+        <p><strong>Tính năng cốt lõi:</strong></p>
+        <ul>
+            <li>Thu thập tin tức tự động từ các trang thông tin lớn: BBC, Facebook, Twitter/X, các báo đài trong nước và tại Mỹ, Trung Quốc, Hàn Quốc, Nhật Bản, Đức...</li>
+            <li>Phân loại tin theo lượng truy cập, tương tác (bình luận, xem, chia sẻ)</li>
+            <li>Gợi ý tin tức xu hướng cho người đọc theo thời gian thực</li>
+            <li>Phân loại đối tượng: người Việt Nam (tiếng Việt) và người nước ngoài (tiếng Anh)</li>
+            <li>Hiển thị: Tin Quốc tế – Tin Việt Nam | Kinh tế – Chính trị – Giải trí Văn hóa</li>
+        </ul>
+    </div>
+
+    <!-- 2. KIẾN TRÚC -->
+    <div class="section">
+        <h2>2. Kiến Trúc Hệ Thống</h2>
+        <div class="architecture-box">┌─────────────────────────────────────────────────────────────┐
+│                      FRONTEND (Web / App)                   │
+│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌───────────┐  │
+│   │ Tin Quốc │  │ Tin Việt │  │ Xu Hướng │  │ Cá Nhân   │  │
+│   │   Tế     │  │   Nam    │  │ Trending │  │ Hóa       │  │
+│   └──────────┘  └──────────┘  └──────────┘  └───────────┘  │
+│   Ngôn ngữ: Tiếng Việt 🇻🇳  |  English 🇺🇸                  │
+└────────────────────────┬────────────────────────────────────┘
+                         │  API Gateway (REST + WebSocket)
+┌────────────────────────┴────────────────────────────────────┐
+│                     BACKEND SERVICES                        │
+│   ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐  │
+│   │ News Crawler│  │ Classifier   │  │ Recommendation   │  │
+│   │ Service     │  │ Service      │  │ Engine           │  │
+│   └─────────────┘  └──────────────┘  └──────────────────┘  │
+│   ┌─────────────┐  ┌──────────────┐  ┌──────────────────┐  │
+│   │ Trending    │  │ Translation  │  │ User Profile     │  │
+│   │ Analyzer    │  │ Service      │  │ Service          │  │
+│   └─────────────┘  └──────────────┘  └──────────────────┘  │
+└────────────────────────┬────────────────────────────────────┘
+                         │
+┌────────────────────────┴────────────────────────────────────┐
+│                      DATA LAYER                             │
+│   ┌──────────┐  ┌──────────────┐  ┌──────────────────────┐ │
+│   │PostgreSQL│  │Elasticsearch │  │ Redis (Cache/Queue)  │ │
+│   │(Users,   │  │(Full-text    │  │ + Apache Kafka       │ │
+│   │ Meta)    │  │ Search)      │  │ (Stream Processing)  │ │
+│   └──────────┘  └──────────────┘  └──────────────────────┘ │
+└─────────────────────────────────────────────────────────────┘</div>
+    </div>
+
+    <!-- 3. CÁC MODULE CHÍNH -->
+    <div class="section">
+        <h2>3. Các Module Chính</h2>
+
+        <!-- 3.1 -->
+        <h3>3.1 Module Thu Thập Dữ Liệu (News Crawler)</h3>
+        <table>
+            <thead>
+                <tr><th>Nguồn</th><th>Phương thức</th><th>Quốc gia</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>BBC, CNN, Reuters</td><td>RSS Feed + API</td><td>Quốc tế</td></tr>
+                <tr><td>Facebook, Twitter/X</td><td>Official API (Graph API, X API v2)</td><td>Quốc tế</td></tr>
+                <tr><td>VnExpress, Tuổi Trẻ, Thanh Niên, Dân Trí</td><td>RSS + Web Scraping</td><td>Việt Nam</td></tr>
+                <tr><td>Yonhap, NHK</td><td>RSS + API</td><td>Hàn Quốc, Nhật Bản</td></tr>
+                <tr><td>Xinhua, CGTN</td><td>RSS Feed</td><td>Trung Quốc</td></tr>
+                <tr><td>DW (Deutsche Welle)</td><td>RSS + API</td><td>Đức</td></tr>
+                <tr><td>YouTube (trending)</td><td>YouTube Data API</td><td>Đa quốc gia</td></tr>
+            </tbody>
+        </table>
+        <p><strong>Tần suất thu thập:</strong> Mỗi 1–5 phút tùy nguồn.</p>
+        <p><strong>Dữ liệu thu thập:</strong></p>
+        <ul>
+            <li>Tiêu đề, nội dung, hình ảnh, video</li>
+            <li>Lượt xem, like, share, comment (từ mạng xã hội)</li>
+            <li>Thời gian đăng, tác giả, nguồn</li>
+            <li>Ngôn ngữ gốc của bài viết</li>
+        </ul>
+
+        <!-- 3.2 -->
+        <h3>3.2 Module Phân Loại Tin Tức (Classifier)</h3>
+        <p><strong>Phân loại theo chủ đề:</strong></p>
+        <p>
+            <span class="badge badge-blue">Chính trị (Politics)</span>
+            <span class="badge badge-green">Kinh tế (Economy/Business)</span>
+            <span class="badge badge-purple">Giải trí – Văn hóa (Entertainment/Culture)</span>
+            <span class="badge badge-orange">Thể thao (Sports)</span>
+            <span class="badge badge-blue">Công nghệ (Technology)</span>
+            <span class="badge badge-green">Xã hội (Society)</span>
+        </p>
+        <br>
+        <p><strong>Phân loại theo khu vực:</strong></p>
+        <ul>
+            <li><strong>Tin Quốc tế:</strong> Mỹ, Trung Quốc, Hàn Quốc, Nhật Bản, Đức, EU...</li>
+            <li><strong>Tin Việt Nam:</strong> Trong nước</li>
+        </ul>
+        <br>
+        <p><strong>Công nghệ:</strong> Sử dụng NLP/AI (BERT, PhoBERT cho tiếng Việt) để tự động gán nhãn chủ đề.</p>
+
+        <!-- 3.3 -->
+        <h3>3.3 Module Phân Tích Xu Hướng (Trending Analyzer)</h3>
+        <p><strong>Chỉ số xếp hạng (Trending Score):</strong></p>
+        <div class="formula-box">
+            Score = w1 × Views + w2 × Comments + w3 × Shares + w4 × Velocity + w5 × Source_Authority
+        </div>
+        <ul>
+            <li><strong>Views:</strong> Lượt xem / truy cập</li>
+            <li><strong>Comments:</strong> Lượng bình luận</li>
+            <li><strong>Shares:</strong> Lượt chia sẻ</li>
+            <li><strong>Velocity:</strong> Tốc độ tăng tương tác (đột biến = xu hướng mới)</li>
+            <li><strong>Source_Authority:</strong> Độ uy tín nguồn tin</li>
+        </ul>
+        <br>
+        <p><strong>Cập nhật:</strong> Real-time qua Kafka stream processing, tính lại mỗi 30 giây.</p>
+
+        <!-- 3.4 -->
+        <h3>3.4 Module Gợi Ý Cá Nhân Hóa (Recommendation Engine)</h3>
+        <ul>
+            <li><strong>Collaborative Filtering:</strong> Gợi ý dựa trên hành vi người dùng tương tự</li>
+            <li><strong>Content-Based:</strong> Gợi ý dựa trên lịch sử đọc của người dùng</li>
+            <li><strong>Trending-Based:</strong> Ưu tiên tin đang hot trong thời gian thực</li>
+        </ul>
+
+        <!-- 3.5 -->
+        <h3>3.5 Module Đa Ngôn Ngữ (Translation Service)</h3>
+        <ul>
+            <li>Tự động phát hiện ngôn ngữ nguồn</li>
+            <li>Dịch tự động sang Tiếng Việt / Tiếng Anh (Google Translate API hoặc DeepL)</li>
+            <li>Giao diện song ngữ: người dùng chọn ngôn ngữ hiển thị</li>
+        </ul>
+    </div>
+
+    <!-- 4. GIAO DIỆN -->
+    <div class="section">
+        <h2>4. Giao Diện Người Dùng</h2>
+
+        <h3>4.1 Cấu trúc Menu chính</h3>
+        <div class="ui-mockup">┌──────────────────────────────────────────────────┐
+│  🌐 NewsHub      [VN 🇻🇳] [EN 🇺🇸]    🔍 Search  │
+├──────────────────────────────────────────────────┤
+│  Trang chủ │ Quốc tế │ Việt Nam │ Xu hướng      │
+├──────────────────────────────────────────────────┤
+│  Danh mục phụ:                                   │
+│  [Chính trị] [Kinh tế] [Giải trí-Văn hóa]      │
+│  [Công nghệ] [Thể thao] [Xã hội]               │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│  ┌─── Trending Now (Real-time) ───────────────┐ │
+│  │ 🔥 1. Tiêu đề tin nóng nhất...            │ │
+│  │ 🔥 2. Breaking news...                     │ │
+│  │ 🔥 3. Xu hướng mạng xã hội...             │ │
+│  └────────────────────────────────────────────┘ │
+│                                                  │
+│  ┌─── Tin Quốc Tế ───────────────────────────┐ │
+│  │ [🇺🇸 Mỹ] [🇨🇳 Trung] [🇰🇷 Hàn]           │ │
+│  │ [🇯🇵 Nhật] [🇩🇪 Đức] [🌍 Khác]            │ │
+│  │ Card tin 1 | Card tin 2 | Card tin 3       │ │
+│  └────────────────────────────────────────────┘ │
+│                                                  │
+│  ┌─── Tin Việt Nam ───────────────────────────┐ │
+│  │ Card tin 1 | Card tin 2 | Card tin 3       │ │
+│  └────────────────────────────────────────────┘ │
+│                                                  │
+│  ┌─── Gợi Ý Cho Bạn (AI) ────────────────────┐ │
+│  │ Dựa trên lịch sử đọc của bạn...          │ │
+│  └────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────┘</div>
+
+        <h3>4.2 Phân biệt đối tượng người dùng</h3>
+        <table>
+            <thead>
+                <tr><th>Tiêu chí</th><th>Người Việt Nam</th><th>Người nước ngoài</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Ngôn ngữ mặc định</td><td>Tiếng Việt</td><td>Tiếng Anh</td></tr>
+                <tr><td>Trang chủ</td><td>Ưu tiên tin VN</td><td>Ưu tiên tin quốc tế</td></tr>
+                <tr><td>Nguồn tin</td><td>Báo VN + quốc tế</td><td>Báo quốc tế + VN dịch sang EN</td></tr>
+                <tr><td>Phát hiện</td><td>Geo-IP + ngôn ngữ trình duyệt</td><td>Geo-IP + ngôn ngữ trình duyệt</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 5. CÔNG NGHỆ -->
+    <div class="section">
+        <h2>5. Công Nghệ Đề Xuất</h2>
+        <table>
+            <thead>
+                <tr><th>Thành phần</th><th>Công nghệ</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Frontend</strong></td><td>Next.js (React) + Tailwind CSS</td></tr>
+                <tr><td><strong>Mobile</strong></td><td>React Native hoặc Flutter</td></tr>
+                <tr><td><strong>Backend API</strong></td><td>Node.js (NestJS) hoặc Python (FastAPI)</td></tr>
+                <tr><td><strong>Crawler</strong></td><td>Python (Scrapy + Selenium)</td></tr>
+                <tr><td><strong>AI / NLP</strong></td><td>Python (HuggingFace, PhoBERT, spaCy)</td></tr>
+                <tr><td><strong>Database</strong></td><td>PostgreSQL + Elasticsearch</td></tr>
+                <tr><td><strong>Cache &amp; Queue</strong></td><td>Redis + Apache Kafka</td></tr>
+                <tr><td><strong>Real-time</strong></td><td>WebSocket (Socket.IO)</td></tr>
+                <tr><td><strong>Dịch thuật</strong></td><td>Google Cloud Translation / DeepL API</td></tr>
+                <tr><td><strong>Hosting</strong></td><td>AWS / GCP (Kubernetes)</td></tr>
+                <tr><td><strong>CDN</strong></td><td>CloudFlare</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 6. LỘ TRÌNH -->
+    <div class="section">
+        <h2>6. Lộ Trình Triển Khai</h2>
+
+        <div class="phase">
+            <strong>Phase 1 — MVP (2–3 tháng)</strong>
+            <ul>
+                <li>Crawler cơ bản: RSS feeds từ 10–15 nguồn chính</li>
+                <li>Phân loại tin theo chủ đề (rule-based + ML cơ bản)</li>
+                <li>Giao diện web song ngữ VN / EN</li>
+                <li>Hiển thị: Tin quốc tế / Tin Việt Nam / Phân loại chủ đề</li>
+                <li>Trending đơn giản (theo lượt xem + chia sẻ)</li>
+            </ul>
+        </div>
+
+        <div class="phase">
+            <strong>Phase 2 — Nâng cao (2–3 tháng tiếp)</strong>
+            <ul>
+                <li>Tích hợp API mạng xã hội (Facebook, X/Twitter)</li>
+                <li>AI phân loại tin nâng cao (BERT / PhoBERT)</li>
+                <li>Hệ thống gợi ý cá nhân hóa</li>
+                <li>Real-time trending với Kafka</li>
+                <li>Ứng dụng mobile</li>
+            </ul>
+        </div>
+
+        <div class="phase">
+            <strong>Phase 3 — Mở rộng (liên tục)</strong>
+            <ul>
+                <li>Thêm nguồn tin từ nhiều quốc gia</li>
+                <li>Phân tích sentiment (cảm xúc tin tức)</li>
+                <li>Chatbot AI tóm tắt tin tức</li>
+                <li>Dashboard phân tích dữ liệu cho nhà báo / nhà nghiên cứu</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 7. LƯU Ý PHÁP LÝ -->
+    <div class="section">
+        <h2>7. Lưu Ý Pháp Lý</h2>
+        <div class="warning-box">
+            <strong>Quan trọng:</strong> Tuân thủ đầy đủ các quy định pháp luật về bản quyền và dữ liệu cá nhân.
+        </div>
+        <ul>
+            <li><strong>Bản quyền nội dung:</strong> Chỉ hiển thị tiêu đề + tóm tắt + link gốc, không sao chép toàn bộ bài viết</li>
+            <li><strong>API Terms of Service:</strong> Tuân thủ điều khoản sử dụng API của từng nền tảng (Facebook, X, YouTube...)</li>
+            <li><strong>robots.txt:</strong> Tôn trọng file robots.txt khi crawl</li>
+            <li><strong>GDPR / PDPA:</strong> Tuân thủ quy định bảo vệ dữ liệu cá nhân người dùng</li>
+            <li><strong>Luật An ninh mạng Việt Nam:</strong> Tuân thủ quy định về lưu trữ và xử lý dữ liệu</li>
+        </ul>
+    </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    <p>Phương án xây dựng phần mềm NewsHub — Ngày lập: 20/03/2026</p>
+</div>
+
+</body>
+</html>
